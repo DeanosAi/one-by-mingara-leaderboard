@@ -1,0 +1,28 @@
+{
+  "name": "one-by-mingara-leaderboard",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n API,APP -c cyan,green \"node --watch server/index.js\" \"vite\"",
+    "build": "vite build",
+    "build:mission-control": "vite build --base=/one-leaderboard/",
+    "start": "node server/index.js",
+    "test": "node --test",
+    "check": "npm run build && npm run test",
+    "qa:visual": "node test/visual-qa.mjs"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "playwright-core": "^1.62.1",
+    "vite": "^6.0.5"
+  }
+}

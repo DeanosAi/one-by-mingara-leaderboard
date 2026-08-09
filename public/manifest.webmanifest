@@ -1,0 +1,14 @@
+{
+  "name": "One by Mingara Leaderboard",
+  "short_name": "One Leaderboard",
+  "description": "Take on One by Mingara challenges and see where you rank.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7faf9",
+  "theme_color": "#073f61",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

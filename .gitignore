@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+data/results.json
+data/admin.json
+data/*.tmp
+*.log
+artifacts/
