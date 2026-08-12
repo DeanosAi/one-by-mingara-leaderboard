@@ -263,7 +263,7 @@ export default function AdminStats() {
         <section className="stats-hero">
           <div>
             <span className="stats-live"><i /> Live analytics</span>
-            <p className="eyebrow">Staff insights</p>
+            <p className="eyebrow">Team insights</p>
             <h1>Usage &amp; adoption</h1>
             <p>Understand how members are using the leaderboard and returning to new challenges.</p>
           </div>

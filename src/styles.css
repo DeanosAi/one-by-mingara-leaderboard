@@ -98,11 +98,11 @@ a { color: inherit; text-decoration: none; }
 .workout-card--disabled .workout-card__icon { color: #80939b; background: #dce7e9; }
 .workout-card--disabled .workout-card__body > strong { margin-bottom: 5px; color: #607680; font-size: 23px; }
 .workout-card--disabled .workout-card__eyebrow { color: #8a9ba2; }
-.staff-access { margin-top: 26px; padding-top: 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid var(--line); }
-.staff-access > span { color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
-.staff-access__button { min-height: 44px; padding: 0 14px; display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; border: 1px solid #c9dade; border-radius: 11px; color: var(--navy); background: #fff; box-shadow: 0 5px 15px rgba(10,65,86,.06); font-size: 9px; font-weight: 800; letter-spacing: .025em; text-transform: uppercase; transition: .2s ease; }
-.staff-access__button:hover { transform: translateY(-1px); border-color: var(--sky); box-shadow: 0 8px 20px rgba(10,65,86,.1); }
-.staff-access__button svg:first-child { color: var(--blue); }
+.team-access { margin-top: 26px; padding-top: 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid var(--line); }
+.team-access > span { color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.team-access__button { min-height: 44px; padding: 0 14px; display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; border: 1px solid #c9dade; border-radius: 11px; color: var(--navy); background: #fff; box-shadow: 0 5px 15px rgba(10,65,86,.06); font-size: 9px; font-weight: 800; letter-spacing: .025em; text-transform: uppercase; transition: .2s ease; }
+.team-access__button:hover { transform: translateY(-1px); border-color: var(--sky); box-shadow: 0 8px 20px rgba(10,65,86,.1); }
+.team-access__button svg:first-child { color: var(--blue); }
 .app-footer { padding: 25px 18px calc(25px + env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: center; gap: 20px; border-top: 1px solid var(--line); }
 
 .workout-page { padding-bottom: calc(98px + env(safe-area-inset-bottom)); background: #f6f9f9; }
@@ -453,7 +453,7 @@ a { color: inherit; text-decoration: none; }
   .workout-card--active:last-child:nth-child(odd) { grid-column: 2 / span 4; }
   .workout-card--disabled { grid-column: span 2; }
   .workout-card--disabled:last-child { grid-column: span 2; }
-  .staff-access { max-width: 620px; margin-inline: auto; }
+  .team-access { max-width: 620px; margin-inline: auto; }
   .workout-hero__title-row, .workout-hero__description { max-width: 760px; }
   .workout-summary { max-width: 700px; }
   .leaderboard-section { max-width: 800px; }
