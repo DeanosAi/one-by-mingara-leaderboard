@@ -100,7 +100,7 @@ function Home() {
           <div className="home-hero__orb home-hero__orb--one" />
           <div className="home-hero__orb home-hero__orb--two" />
           <div className="page-width home-hero__content">
-            <div className="season-pill"><span /> Your training starts here!</div>
+            <div className="season-pill"><span /> YOUR TRAINING STARTS HERE!</div>
             <p className="eyebrow eyebrow--light">Member leaderboard</p>
             <h1>HYROX<br /><em>Leaderboard</em></h1>
             <p className="home-hero__copy">Take on a challenge, log your result and see where you rank at One by Mingara.</p>

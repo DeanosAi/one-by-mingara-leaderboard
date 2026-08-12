@@ -22,7 +22,7 @@ try {
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   await mobile.goto(baseUrl, { waitUntil: 'domcontentloaded' });
   await mobile.getByRole('heading', { name: 'HYROX Leaderboard' }).waitFor();
-  assert.equal(await mobile.getByText('Your training starts here!').count(), 1);
+  assert.equal(await mobile.getByText('YOUR TRAINING STARTS HERE!').count(), 1);
   await mobile.getByText('Choose your challenge').waitFor();
   assert.equal(await mobile.locator('.workout-card--active').count(), 5);
   assert.equal(await mobile.locator('.workout-card--disabled').count(), 0);
