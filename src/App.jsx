@@ -163,7 +163,7 @@ function Home() {
           </div>
         </section>
       </main>
-      <footer className="app-footer"><OneLogo compact /><span>Move. Connect. Feel great.</span></footer>
+      <footer className="app-footer"><OneLogo compact /></footer>
     </div>
   );
 }
