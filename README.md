@@ -44,6 +44,23 @@ The included multi-stage `Dockerfile` builds that subpath-aware version and stor
 
 The protected `/admin/stats` page calculates adoption metrics from leaderboard submissions. Because members do not have accounts, a unique participant is inferred from a case-insensitive, whitespace-normalised submitted name. The dashboard measures entries and participants rather than page views, and includes current-period activity, week/month comparisons, rolling averages, trend charts, workout mix, repeat use, and cross-workout participation.
 
+## WordPress handover build
+
+The `wordpress/one-by-mingara-leaderboard` directory contains a self-contained WordPress edition with WordPress REST endpoints, database persistence, a standalone page template and the compiled frontend. It starts with an empty results table and does not import local or Mission Control data.
+
+```bash
+npm run build:wordpress
+npm run test:wordpress
+```
+
+On Windows, create the complete installable/source handover archives with:
+
+```powershell
+.\scripts\build-wordpress-handover.ps1
+```
+
+Read `MINGARA-WORDPRESS-DEPLOYMENT-GUIDE.md` for staging, orphaned-page, production, privacy, backup and rollback instructions.
+
 ## Checks
 
 ```powershell

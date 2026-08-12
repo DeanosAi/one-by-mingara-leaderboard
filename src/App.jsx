@@ -27,13 +27,14 @@ import {
 } from 'lucide-react';
 import { workouts, workoutById, formatTime } from '../shared/workouts.js';
 import { api } from './api.js';
-import { appPath } from './base-path.js';
+import { adminLoginNote, assetPath } from './base-path.js';
+import { subscribeToResultUpdates } from './live-updates.js';
 import AdminStats from './StatsPage.jsx';
 
 function OneLogo({ compact = false, light = false }) {
   return (
     <span className={`one-logo ${compact ? 'one-logo--compact' : ''} ${light ? 'one-logo--light' : ''}`}>
-      <img className="one-logo__image" src={appPath('/one-by-mingara-logo.png')} alt="One by Mingara" />
+      <img className="one-logo__image" src={assetPath('/one-by-mingara-logo.png')} alt="One by Mingara" />
     </span>
   );
 }
@@ -86,10 +87,7 @@ function Home() {
   useEffect(() => {
     document.title = 'One Leaderboard | One by Mingara';
     loadSnapshots();
-    const events = new EventSource(appPath('/api/events'));
-    events.addEventListener('result-created', loadSnapshots);
-    events.addEventListener('result-deleted', loadSnapshots);
-    return () => events.close();
+    return subscribeToResultUpdates(loadSnapshots);
   }, [loadSnapshots]);
 
   return (
@@ -416,14 +414,7 @@ function WorkoutPage() {
     if (!workout) return;
     document.title = `${workout.name} Leaderboard | One by Mingara`;
     loadResults();
-    const events = new EventSource(appPath('/api/events'));
-    const refresh = (event) => {
-      const payload = JSON.parse(event.data);
-      if (payload.workoutId === workout.id) loadResults(true);
-    };
-    events.addEventListener('result-created', refresh);
-    events.addEventListener('result-deleted', refresh);
-    return () => events.close();
+    return subscribeToResultUpdates(() => loadResults(true));
   }, [workout, loadResults]);
 
   if (!workout || !workout.active) return <Navigate to="/" replace />;
@@ -585,7 +576,7 @@ function Admin() {
             {error && <div className="form-error" role="alert">{error}</div>}
             <button className="primary-button primary-button--full" type="submit" disabled={!password || loading}>{loading ? <><LoaderCircle className="spin" size={20} /> Signing in…</> : <>Sign in securely <ArrowRight size={19} /></>}</button>
           </form>
-          <p className="demo-note">Use the Team testing password supplied with this preview.</p>
+          <p className="demo-note">{adminLoginNote}</p>
         </main>
       </div>
     );

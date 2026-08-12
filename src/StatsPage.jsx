@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { workouts } from '../shared/workouts.js';
 import { api } from './api.js';
-import { appPath } from './base-path.js';
+import { subscribeToResultUpdates } from './live-updates.js';
 import { buildUsageStats } from './stats.js';
 
 const chartColours = ['#007298', '#8fcebb', '#174977', '#79b7ca', '#d0a84f'];
@@ -228,10 +228,7 @@ export default function AdminStats() {
     document.title = 'Usage Stats | One Leaderboard';
     if (!token) return undefined;
     load(token);
-    const events = new EventSource(appPath('/api/events'));
-    events.addEventListener('result-created', () => load(token));
-    events.addEventListener('result-deleted', () => load(token));
-    return () => events.close();
+    return subscribeToResultUpdates(() => load(token));
   }, [token, load]);
 
   const monthOptions = useMemo(() => getMonthOptions(results, refreshedAt), [results, refreshedAt]);
