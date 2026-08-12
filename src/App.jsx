@@ -33,7 +33,7 @@ import AdminStats from './StatsPage.jsx';
 function OneLogo({ compact = false, light = false }) {
   return (
     <span className={`one-logo ${compact ? 'one-logo--compact' : ''} ${light ? 'one-logo--light' : ''}`}>
-      <img className="one-logo__image" src={appPath('/one-by-mingara-logo.jpg')} alt="One by Mingara" />
+      <img className="one-logo__image" src={appPath('/one-by-mingara-logo.png')} alt="One by Mingara" />
     </span>
   );
 }

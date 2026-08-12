@@ -1,10 +1,10 @@
-const CACHE_NAME = 'one-leaderboard-v3';
+const CACHE_NAME = 'one-leaderboard-v4';
 const scopeUrl = new URL('./', self.registration.scope);
 const apiPath = new URL('api/', scopeUrl).pathname;
 const APP_SHELL = [
   scopeUrl.href,
   new URL('manifest.webmanifest', scopeUrl).href,
-  new URL('one-by-mingara-logo.jpg', scopeUrl).href,
+  new URL('one-by-mingara-logo.png', scopeUrl).href,
 ];
 
 self.addEventListener('install', (event) => {
