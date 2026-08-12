@@ -7,6 +7,8 @@
     "dev": "concurrently -k -n API,APP -c cyan,green \"node --watch server/index.js\" \"vite\"",
     "build": "vite build",
     "build:mission-control": "vite build --base=/one-leaderboard/",
+    "build:wordpress": "vite build --config vite.wordpress.config.js",
+    "test:wordpress": "node test/wordpress-qa.mjs",
     "start": "node server/index.js",
     "test": "node --test",
     "check": "npm run build && npm run test",

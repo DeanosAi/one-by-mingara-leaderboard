@@ -6,3 +6,4 @@ data/admin.json
 data/*.tmp
 *.log
 artifacts/
+handover/

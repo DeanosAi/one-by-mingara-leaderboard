@@ -5,7 +5,7 @@ import { workouts as configuredWorkouts } from '../shared/workouts.js';
 
 const workouts = [
   { id: 'run', name: '1KM Run' },
-  { id: 'balls', name: '100 War Balls' },
+  { id: 'balls', name: '100 Wall Balls' },
 ];
 
 const result = (name, workoutId, createdAt) => ({ name, workoutId, createdAt, timeCentiseconds: 30000 });
@@ -62,7 +62,7 @@ test('usage stats recognise every configured workout', () => {
 
   assert.deepEqual(
     new Set(stats.workoutBreakdown.map((item) => item.label)),
-    new Set(['1KM Run', '100 War Balls', '1KM Row', '1KM Ski', '80m Burpee Broad Jumps']),
+    new Set(['1KM Run', '100 Wall Balls', '1KM Row', '1KM Ski', '80m Burpee Broad Jumps']),
   );
   assert.equal(stats.workoutBreakdown.every((item) => item.value === 1), true);
 });

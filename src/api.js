@@ -1,7 +1,7 @@
-import { appPath } from './base-path.js';
+import { apiPath } from './base-path.js';
 
 async function request(path, options = {}) {
-  const response = await fetch(appPath(path), {
+  const response = await fetch(apiPath(path), {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -9,7 +9,7 @@ async function request(path, options = {}) {
     },
   });
   const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(body.error || 'Something went wrong. Please try again.');
+  if (!response.ok) throw new Error(body.error || body.message || 'Something went wrong. Please try again.');
   return body;
 }
 
@@ -24,15 +24,15 @@ export const api = {
     body: JSON.stringify({ password }),
   }),
   getAdminResults: (token) => request('/api/admin/results', {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${token}`, 'X-One-Leaderboard-Token': token },
   }),
   changeAdminPassword: (token, currentPassword, newPassword) => request('/api/admin/password', {
     method: 'POST',
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${token}`, 'X-One-Leaderboard-Token': token },
     body: JSON.stringify({ currentPassword, newPassword }),
   }),
   deleteResult: (token, id) => request(`/api/admin/results/${id}`, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${token}`, 'X-One-Leaderboard-Token': token },
   }),
 };

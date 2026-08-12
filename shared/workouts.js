@@ -14,9 +14,9 @@ export const workouts = [
   },
   {
     id: 'war-balls-100',
-    name: '100 War Balls',
+    name: '100 Wall Balls',
     eyebrow: 'Strength endurance',
-    description: 'Complete 100 war ball repetitions for time. Ball weight is recorded, while ranking is based on speed only.',
+    description: 'Complete 100 wall ball repetitions for time. Ball weight is recorded, while ranking is based on speed only.',
     active: true,
     rankingMetric: 'time_asc',
     resultFields: [

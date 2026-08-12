@@ -1,6 +1,6 @@
 # One by Mingara Leaderboard
 
-Mobile-first proof of concept for shared member workout leaderboards. It includes five active challenges (1KM Run, 100 War Balls, 1KM Row, 1KM Ski, and 80m Burpee Broad Jumps), instant cross-device updates, result ranking, installable PWA metadata, and Team moderation.
+Mobile-first proof of concept for shared member workout leaderboards. It includes five active challenges (1KM Run, 100 Wall Balls, 1KM Row, 1KM Ski, and 80m Burpee Broad Jumps), an expandable HYROX Physical Fitness Test division guide, instant cross-device updates, result ranking, installable PWA metadata, and Team moderation.
 
 ## Run locally
 
@@ -44,10 +44,27 @@ The included multi-stage `Dockerfile` builds that subpath-aware version and stor
 
 The protected `/admin/stats` page calculates adoption metrics from leaderboard submissions. Because members do not have accounts, a unique participant is inferred from a case-insensitive, whitespace-normalised submitted name. The dashboard measures entries and participants rather than page views, and includes current-period activity, week/month comparisons, rolling averages, trend charts, workout mix, repeat use, and cross-workout participation.
 
+## WordPress handover build
+
+The `wordpress/one-by-mingara-leaderboard` directory contains a self-contained WordPress edition with WordPress REST endpoints, database persistence, a standalone page template and the compiled frontend. It starts with an empty results table and does not import local or Mission Control data.
+
+```bash
+npm run build:wordpress
+npm run test:wordpress
+```
+
+On Windows, create the complete installable/source handover archives with:
+
+```powershell
+.\scripts\build-wordpress-handover.ps1
+```
+
+Read `MINGARA-WORDPRESS-DEPLOYMENT-GUIDE.md` for staging, orphaned-page, production, privacy, backup and rollback instructions.
+
 ## Checks
 
 ```powershell
 npm run check
 ```
 
-The tests cover fastest-time sorting, immediate rank calculation, War Balls weight display data, validation, admin protection, and moderation deletion.
+The tests cover fastest-time sorting, immediate rank calculation, Wall Balls weight display data, validation, admin protection, and moderation deletion.

@@ -27,13 +27,14 @@ import {
 } from 'lucide-react';
 import { workouts, workoutById, formatTime } from '../shared/workouts.js';
 import { api } from './api.js';
-import { appPath } from './base-path.js';
+import { adminLoginNote, assetPath } from './base-path.js';
+import { subscribeToResultUpdates } from './live-updates.js';
 import AdminStats from './StatsPage.jsx';
 
 function OneLogo({ compact = false, light = false }) {
   return (
     <span className={`one-logo ${compact ? 'one-logo--compact' : ''} ${light ? 'one-logo--light' : ''}`}>
-      <img className="one-logo__image" src={appPath('/one-by-mingara-logo.png')} alt="One by Mingara" />
+      <img className="one-logo__image" src={assetPath('/one-by-mingara-logo.png')} alt="One by Mingara" />
     </span>
   );
 }
@@ -86,10 +87,7 @@ function Home() {
   useEffect(() => {
     document.title = 'One Leaderboard | One by Mingara';
     loadSnapshots();
-    const events = new EventSource(appPath('/api/events'));
-    events.addEventListener('result-created', loadSnapshots);
-    events.addEventListener('result-deleted', loadSnapshots);
-    return () => events.close();
+    return subscribeToResultUpdates(loadSnapshots);
   }, [loadSnapshots]);
 
   return (
@@ -155,6 +153,52 @@ function Home() {
               );
             })}
           </div>
+
+          <details className="hyrox-test">
+            <summary className="hyrox-test__summary">
+              <span className="hyrox-test__summary-icon"><Gauge size={23} /></span>
+              <span className="hyrox-test__summary-copy">
+                <span className="hyrox-test__eyebrow">HYROX Physical Fitness Test</span>
+                <strong>Which division fits your pace?</strong>
+                <small>Complete one test, then compare your total time.</small>
+              </span>
+              <span className="hyrox-test__toggle">
+                <span>View test</span>
+                <ChevronRight size={19} />
+              </span>
+            </summary>
+
+            <div className="hyrox-test__content">
+              <div className="hyrox-test__intro">
+                <p className="eyebrow">The workout</p>
+                <h3>Complete all six exercises for time.</h3>
+                <p>Record the total time taken to complete the full workout in this order.</p>
+              </div>
+
+              <ol className="hyrox-test__workout">
+                <li><span>01</span><strong>1km Run</strong><small>Treadmill at 2% incline</small></li>
+                <li><span>02</span><strong>50m Burpee Broad Jump</strong></li>
+                <li><span>03</span><strong>100 Alternating Forward Lunges</strong><small>Stationary</small></li>
+                <li><span>04</span><strong>1km Row</strong></li>
+                <li><span>05</span><strong>30 Hand Release Push Ups</strong></li>
+                <li><span>06</span><strong>100 Wall Balls</strong><small>6kg male / 4kg female</small></li>
+              </ol>
+
+              <div className="hyrox-test__guide">
+                <div className="hyrox-test__guide-heading">
+                  <p className="eyebrow">Indicative time guide</p>
+                  <h3>Compare your total time.</h3>
+                </div>
+                <div className="hyrox-test__divisions">
+                  <div><strong>15–20</strong><span>minutes</span><b>HYROX Pro</b></div>
+                  <div><strong>20–35</strong><span>minutes</span><b>HYROX Open</b></div>
+                  <div><strong>30–40</strong><span>minutes</span><b>HYROX Doubles</b></div>
+                  <div><strong>35–45</strong><span>minutes</span><b>HYROX Relay</b></div>
+                </div>
+                <p className="hyrox-test__note">These time ranges are an indicative guide, not an official qualification or entry requirement. The ranges overlap, so a result may suit more than one division.</p>
+              </div>
+            </div>
+          </details>
 
           <div className="team-access">
             <span>One by Mingara Team</span>
@@ -416,14 +460,7 @@ function WorkoutPage() {
     if (!workout) return;
     document.title = `${workout.name} Leaderboard | One by Mingara`;
     loadResults();
-    const events = new EventSource(appPath('/api/events'));
-    const refresh = (event) => {
-      const payload = JSON.parse(event.data);
-      if (payload.workoutId === workout.id) loadResults(true);
-    };
-    events.addEventListener('result-created', refresh);
-    events.addEventListener('result-deleted', refresh);
-    return () => events.close();
+    return subscribeToResultUpdates(() => loadResults(true));
   }, [workout, loadResults]);
 
   if (!workout || !workout.active) return <Navigate to="/" replace />;
@@ -585,7 +622,7 @@ function Admin() {
             {error && <div className="form-error" role="alert">{error}</div>}
             <button className="primary-button primary-button--full" type="submit" disabled={!password || loading}>{loading ? <><LoaderCircle className="spin" size={20} /> Signing in…</> : <>Sign in securely <ArrowRight size={19} /></>}</button>
           </form>
-          <p className="demo-note">Use the Team testing password supplied with this preview.</p>
+          <p className="demo-note">{adminLoginNote}</p>
         </main>
       </div>
     );

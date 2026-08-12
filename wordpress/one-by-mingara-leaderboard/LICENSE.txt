@@ -1,0 +1,4 @@
+Copyright 2026 One by Mingara.
+
+This handover package is supplied to Mingara for operating, maintaining and modifying the One by Mingara Leaderboard on Mingara-owned infrastructure. Third-party libraries bundled in the compiled frontend retain their respective licences.
+
