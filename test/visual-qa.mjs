@@ -141,9 +141,9 @@ try {
   await monthlyPeer.getByRole('heading', { name: 'HYROX Engine Builder' }).waitFor();
   await mobile.getByRole('link', { name: /Monthly workout/i }).click();
   await mobile.getByRole('heading', { name: 'Workout of the Month' }).waitFor();
-  await mobile.getByLabel('Month label').fill('September 2026');
+  await mobile.getByLabel('MONTH').fill('September 2026');
   await mobile.getByLabel('Workout title').fill('September Strength Builder');
-  await mobile.getByLabel('Workout format').fill('4 rounds for quality');
+  await mobile.getByLabel('HOW MANY ROUNDS').fill('4 rounds for quality');
   await mobile.getByLabel('Description').fill('A controlled strength and conditioning session for every member.');
   await mobile.getByLabel('Exercises').fill('500m Row\n16 Wall Balls\n20 Walking Lunges');
   await mobile.getByLabel('Team note').fill('Keep every round smooth and repeatable.');
