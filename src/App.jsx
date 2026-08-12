@@ -32,11 +32,8 @@ import AdminStats from './StatsPage.jsx';
 
 function OneLogo({ compact = false, light = false }) {
   return (
-    <span className={`one-logo ${compact ? 'one-logo--compact' : ''} ${light ? 'one-logo--light' : ''}`} aria-label="One by Mingara">
-      <span className="one-logo__type">
-        <strong>one</strong>
-        <small>by mingara</small>
-      </span>
+    <span className={`one-logo ${compact ? 'one-logo--compact' : ''} ${light ? 'one-logo--light' : ''}`}>
+      <img className="one-logo__image" src={appPath('/one-by-mingara-logo.jpg')} alt="One by Mingara" />
     </span>
   );
 }
