@@ -150,7 +150,7 @@ function groupParticipants(results, workoutNames) {
     const participant = participants.get(key);
     participant.entries += 1;
     participant.workoutIds.add(result.workoutId);
-    participant.workouts.add(workoutNames.get(result.workoutId) || result.workoutId);
+    participant.workouts.add(workoutNames.get(result.workoutId) || result.workoutName || result.workoutId);
   });
   return [...participants.values()].map((participant) => ({
     name: participant.name,
@@ -164,7 +164,10 @@ function workoutBreakdown(results, workoutNames) {
   const counts = new Map();
   results.forEach((result) => counts.set(result.workoutId, (counts.get(result.workoutId) || 0) + 1));
   return [...counts.entries()]
-    .map(([workoutId, value]) => ({ workoutId, label: workoutNames.get(workoutId) || workoutId, value }))
+    .map(([workoutId, value]) => {
+      const sample = results.find((result) => result.workoutId === workoutId);
+      return { workoutId, label: workoutNames.get(workoutId) || sample?.workoutName || workoutId, value };
+    })
     .sort((a, b) => b.value - a.value);
 }
 

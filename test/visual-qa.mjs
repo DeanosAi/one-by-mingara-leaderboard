@@ -34,12 +34,24 @@ try {
   await monthlyWorkoutLink.click();
   await mobile.getByRole('heading', { name: 'HYROX Engine Builder' }).waitFor();
   assert.equal(await mobile.locator('.monthly-workout-list li').count(), 4);
+  await mobile.getByRole('button', { name: 'RECORD YOUR TIME' }).click();
+  await mobile.getByRole('dialog').waitFor();
+  assert.equal(await mobile.getByLabel('Minutes').locator('option').count(), 180);
+  await mobile.getByLabel('Your name').fill('Monthly QA Runner');
+  await mobile.getByLabel('Minutes').selectOption('18');
+  await mobile.getByLabel('Seconds').selectOption('30');
+  await mobile.getByRole('dialog').getByRole('button', { name: /Submit my result/i }).click();
+  await mobile.getByText('Result locked in').waitFor();
+  await mobile.getByRole('button', { name: /See the leaderboard/i }).click();
+  await mobile.getByText('Monthly QA Runner').waitFor();
+  assert.equal(await mobile.locator('.monthly-workout-standings .leader-row').count(), 1);
   const monthlySectionSpacing = await mobile.evaluate(() => ({
     heroBottom: document.querySelector('.monthly-workout-hero').getBoundingClientRect().bottom,
     sessionTop: document.querySelector('.monthly-workout-heading').getBoundingClientRect().top,
   }));
   assert.ok(monthlySectionSpacing.sessionTop >= monthlySectionSpacing.heroBottom + 15);
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+  await mobile.screenshot({ path: path.join(outputDir, 'monthly-workout-mobile.png'), fullPage: true });
   await mobile.getByRole('link', { name: 'Go back' }).click();
   await mobile.getByText('Choose your challenge').waitFor();
   const fitnessTest = mobile.locator('.hyrox-test');
@@ -158,13 +170,19 @@ try {
   await mobile.getByRole('searchbox', { name: /Search 100 Wall Balls results by name/ }).fill('Mia');
   assert.equal(await mobile.locator('.admin-result').count(), 0);
   await mobile.getByText('No matching names found.').waitFor();
-  assert.equal(await mobile.getByRole('tab').count(), 5);
+  assert.equal(await mobile.getByRole('tab').count(), 7);
   for (const workoutName of ['1KM Row', '1KM Ski', '80m Burpee Broad Jumps']) {
     await mobile.getByRole('tab', { name: workoutName }).click();
     assert.equal(await mobile.locator('.admin-result').count(), 0);
     await mobile.getByText('No results for this workout.').waitFor();
     assert.equal(await mobile.getByRole('searchbox', { name: new RegExp(`Search ${workoutName} results by name`, 'i') }).count(), 1);
   }
+  await mobile.getByRole('tab', { name: 'Workout of the Month, HYROX Engine Builder' }).click();
+  assert.equal(await mobile.locator('.admin-result').count(), 1);
+  await mobile.getByText('Monthly QA Runner').waitFor();
+  assert.equal(await mobile.locator('.admin-result__score strong').textContent(), '18:30.00');
+  await mobile.getByRole('searchbox', { name: /Search HYROX Engine Builder results by name/ }).fill('Monthly QA');
+  assert.equal(await mobile.locator('.admin-result').count(), 1);
   await mobile.getByRole('tab', { name: /1KM Run/ }).click();
   await mobile.screenshot({ path: path.join(outputDir, 'admin-results-mobile.png'), fullPage: true });
   await mobile.getByRole('link', { name: 'Stats' }).click();
@@ -191,9 +209,11 @@ try {
   await mobile.screenshot({ path: path.join(outputDir, 'admin-stats-mobile.png'), fullPage: true });
   await mobile.getByRole('link', { name: 'Back to workout results' }).click();
   await mobile.getByRole('heading', { name: 'Workout results' }).waitFor();
+  const deleteVisualRunner = mobile.getByRole('button', { name: "Delete Visual QA Runner's result" });
+  await deleteVisualRunner.waitFor();
   const beforeDelete = await mobile.locator('.admin-result').count();
   mobile.once('dialog', (dialog) => dialog.accept());
-  await mobile.getByRole('button', { name: "Delete Visual QA Runner's result" }).click();
+  await deleteVisualRunner.click();
   await mobile.waitForFunction((count) => document.querySelectorAll('.admin-result').length === count - 1, beforeDelete);
   assert.equal(await mobile.locator('.admin-result').count(), beforeDelete - 1);
 
