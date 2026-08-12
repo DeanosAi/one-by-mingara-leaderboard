@@ -108,6 +108,12 @@ test('Team can publish a persistent Workout of the Month while public editing st
   assert.equal(initial.body.workout.title, 'HYROX Engine Builder');
   assert.ok(initial.body.workout.exercises.length > 0);
 
+  const trackedClick = await json(`${baseUrl}/api/monthly-workout/click`, { method: 'POST', body: '{}' });
+  assert.equal(trackedClick.status, 201);
+  assert.equal(trackedClick.body.tracked, true);
+  const protectedClicks = await json(`${baseUrl}/api/admin/monthly-workout-clicks`);
+  assert.equal(protectedClicks.status, 401);
+
   const workout = {
     monthLabel: 'September 2026',
     title: 'September Strength Builder',
@@ -121,6 +127,12 @@ test('Team can publish a persistent Workout of the Month while public editing st
 
   const login = await json(`${baseUrl}/api/admin/login`, { method: 'POST', body: JSON.stringify({ password: 'test-secret' }) });
   const headers = { Authorization: `Bearer ${login.body.token}` };
+  const clickReport = await json(`${baseUrl}/api/admin/monthly-workout-clicks`, { headers });
+  assert.equal(clickReport.status, 200);
+  assert.equal(clickReport.body.total, 1);
+  assert.equal(clickReport.body.clicks[0].workoutTitle, 'HYROX Engine Builder');
+  const savedClicks = JSON.parse(fs.readFileSync(path.join(directory, 'monthly-workout-clicks.json'), 'utf8'));
+  assert.equal(savedClicks.clicks.length, 1);
   const updated = await json(`${baseUrl}/api/admin/monthly-workout`, { method: 'PUT', headers, body: JSON.stringify(workout) });
   assert.equal(updated.status, 200);
   assert.equal(updated.body.workout.title, workout.title);

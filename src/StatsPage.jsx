@@ -9,6 +9,7 @@ import {
   LoaderCircle,
   LogOut,
   Minus,
+  MousePointerClick,
   RefreshCw,
   Repeat2,
   TrendingDown,
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 import { workouts } from '../shared/workouts.js';
 import { api } from './api.js';
+import { platform } from './base-path.js';
 import { subscribeToResultUpdates } from './live-updates.js';
 import { buildUsageStats } from './stats.js';
 
@@ -37,8 +39,11 @@ function monthDateFromKey(key) {
   return new Date(year, month - 1, 1);
 }
 
-function getMonthOptions(results, now) {
-  const validDates = results.map((result) => new Date(result.createdAt)).filter((date) => !Number.isNaN(date.getTime()));
+function getMonthOptions(results, monthlyWorkoutClicks, now) {
+  const validDates = [
+    ...results.map((result) => new Date(result.createdAt)),
+    ...monthlyWorkoutClicks.map((click) => new Date(click.clickedAt)),
+  ].filter((date) => !Number.isNaN(date.getTime()));
   const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const earliestDate = validDates.length ? new Date(Math.min(...validDates.map((date) => date.getTime()))) : currentMonth;
   const twelveMonthWindow = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 11, 1);
@@ -67,6 +72,25 @@ function PeriodCard({ label, data, icon: Icon }) {
       <strong>{data.users}</strong>
       <small>unique participant{data.users === 1 ? '' : 's'}</small>
       <p>{data.entries} result{data.entries === 1 ? '' : 's'} submitted</p>
+    </article>
+  );
+}
+
+function MonthlyWorkoutClickCard({ stats, selectedMonth }) {
+  return (
+    <article className="monthly-click-card">
+      <span className="monthly-click-card__icon"><MousePointerClick size={24} /></span>
+      <div className="monthly-click-card__copy">
+        <p className="eyebrow">Workout of the Month interest</p>
+        <h2>Feature button clicks</h2>
+        <p>{stats.topWorkoutTitle ? `Most clicked workout: ${stats.topWorkoutTitle}` : 'No Workout of the Month clicks recorded in this period.'}</p>
+      </div>
+      <div className="monthly-click-card__metric">
+        <Delta data={stats.comparison} />
+        <strong>{stats.selected}</strong>
+        <span>click{stats.selected === 1 ? '' : 's'} in {selectedMonth}</span>
+        <small>{stats.previous} in the previous month · {stats.lifetime} since tracking began</small>
+      </div>
     </article>
   );
 }
@@ -200,6 +224,7 @@ export default function AdminStats() {
   const navigate = useNavigate();
   const [token, setToken] = useState(() => sessionStorage.getItem('one-admin-token'));
   const [results, setResults] = useState([]);
+  const [monthlyWorkoutClicks, setMonthlyWorkoutClicks] = useState([]);
   const [loading, setLoading] = useState(Boolean(token));
   const [error, setError] = useState('');
   const [refreshedAt, setRefreshedAt] = useState(new Date());
@@ -209,8 +234,12 @@ export default function AdminStats() {
     if (!authToken) return;
     setLoading(true);
     try {
-      const response = await api.getAdminResults(authToken);
-      setResults(response.results);
+      const [resultsResponse, clicksResponse] = await Promise.all([
+        api.getAdminResults(authToken),
+        platform === 'standalone' ? api.getMonthlyWorkoutClicks(authToken) : Promise.resolve({ clicks: [] }),
+      ]);
+      setResults(resultsResponse.results);
+      setMonthlyWorkoutClicks(clicksResponse.clicks);
       setRefreshedAt(new Date());
       setError('');
     } catch (requestError) {
@@ -231,8 +260,8 @@ export default function AdminStats() {
     return subscribeToResultUpdates(() => load(token));
   }, [token, load]);
 
-  const monthOptions = useMemo(() => getMonthOptions(results, refreshedAt), [results, refreshedAt]);
-  const stats = useMemo(() => buildUsageStats(results, workouts, refreshedAt, monthDateFromKey(selectedMonth)), [results, refreshedAt, selectedMonth]);
+  const monthOptions = useMemo(() => getMonthOptions(results, monthlyWorkoutClicks, refreshedAt), [results, monthlyWorkoutClicks, refreshedAt]);
+  const stats = useMemo(() => buildUsageStats(results, workouts, refreshedAt, monthDateFromKey(selectedMonth), monthlyWorkoutClicks), [results, refreshedAt, selectedMonth, monthlyWorkoutClicks]);
 
   if (!token) return <Navigate to="/admin" replace />;
 
@@ -267,7 +296,7 @@ export default function AdminStats() {
           <button className="stats-refresh" type="button" onClick={() => load()} disabled={loading}><RefreshCw className={loading ? 'spin' : ''} size={17} /> Refresh</button>
         </section>
 
-        <div className="stats-data-note"><Activity size={15} /><span>Users are estimated from unique submitted names. These figures measure leaderboard submissions, not page visits.</span></div>
+        <div className="stats-data-note"><Activity size={15} /><span>Users are estimated from unique submitted names. Participation figures measure leaderboard submissions; Workout of the Month interest measures clicks on its home-page feature button.</span></div>
         {error && <div className="form-error admin-error" role="alert">{error}</div>}
 
         {loading && !results.length ? <div className="stats-loading"><LoaderCircle className="spin" /> Loading usage data…</div> : (
@@ -289,6 +318,8 @@ export default function AdminStats() {
                 <small>{formatNumber(stats.selectedMonth.averageDailyEntries)} entries per day</small>
               </div>
             </section>
+
+            {platform === 'standalone' && <MonthlyWorkoutClickCard stats={stats.monthlyWorkoutClicks} selectedMonth={stats.selectedMonth.label} />}
 
             <section className="stats-section">
               <div className="stats-section-heading"><div><p className="eyebrow">Current &amp; selected activity</p><h2>Participation overview</h2></div><span>{results.length} lifetime entries</span></div>

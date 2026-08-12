@@ -6,6 +6,7 @@ export function subscribeToResultUpdates(callback) {
     events.addEventListener('result-created', callback);
     events.addEventListener('result-deleted', callback);
     events.addEventListener('monthly-workout-updated', callback);
+    events.addEventListener('monthly-workout-clicked', callback);
     return () => events.close();
   }
 

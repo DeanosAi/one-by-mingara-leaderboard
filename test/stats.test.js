@@ -9,6 +9,7 @@ const workouts = [
 ];
 
 const result = (name, workoutId, createdAt) => ({ name, workoutId, createdAt, timeCentiseconds: 30000 });
+const monthlyClick = (workoutTitle, clickedAt) => ({ workoutTitle, monthLabel: 'Featured month', clickedAt });
 
 test('usage stats count unique names case-insensitively and compare periods', () => {
   const now = new Date(2026, 7, 12, 12, 0, 0);
@@ -49,6 +50,24 @@ test('usage stats return safe zero values for an empty dataset', () => {
   assert.equal(stats.comparisons.week.entries.direction, 'flat');
   assert.deepEqual(stats.crossWorkoutParticipants, []);
   assert.equal(stats.lifetime.entriesPerUser, 0);
+});
+
+test('usage stats report Workout of the Month clicks for the selected month', () => {
+  const now = new Date(2026, 7, 12, 12, 0, 0);
+  const clicks = [
+    monthlyClick('August Engine Builder', new Date(2026, 7, 2, 9).toISOString()),
+    monthlyClick('August Engine Builder', new Date(2026, 7, 11, 9).toISOString()),
+    monthlyClick('July Strength Test', new Date(2026, 6, 10, 9).toISOString()),
+  ];
+  const stats = buildUsageStats([], workouts, now, new Date(2026, 7, 1), clicks);
+
+  assert.equal(stats.monthlyWorkoutClicks.selected, 2);
+  assert.equal(stats.monthlyWorkoutClicks.previous, 1);
+  assert.equal(stats.monthlyWorkoutClicks.lifetime, 3);
+  assert.equal(stats.monthlyWorkoutClicks.comparison.direction, 'up');
+  assert.equal(stats.monthlyWorkoutClicks.comparison.percent, 100);
+  assert.equal(stats.monthlyWorkoutClicks.topWorkoutTitle, 'August Engine Builder');
+  assert.equal(stats.monthlyWorkoutClicks.topWorkoutClicks, 2);
 });
 
 test('usage stats recognise every configured workout', () => {

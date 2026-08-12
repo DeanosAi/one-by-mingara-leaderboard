@@ -4,6 +4,7 @@ dist/
 data/results.json
 data/admin.json
 data/monthly-workout.json
+data/monthly-workout-clicks.json
 data/*.tmp
 *.log
 artifacts/

@@ -31,11 +31,11 @@ function startOfMonth(value) {
   return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 
-function inRange(results, start, end) {
+function inRange(results, start, end, dateField = 'createdAt') {
   const startTime = start.getTime();
   const endTime = end.getTime();
   return results.filter((result) => {
-    const time = new Date(result.createdAt).getTime();
+    const time = new Date(result[dateField]).getTime();
     return time >= startTime && time < endTime;
   });
 }
@@ -168,8 +168,9 @@ function workoutBreakdown(results, workoutNames) {
     .sort((a, b) => b.value - a.value);
 }
 
-export function buildUsageStats(results, workouts, now = new Date(), selectedMonth = now) {
+export function buildUsageStats(results, workouts, now = new Date(), selectedMonth = now, monthlyWorkoutClicks = []) {
   const safeResults = results.filter((result) => result?.createdAt && !Number.isNaN(new Date(result.createdAt).getTime()));
+  const safeMonthlyWorkoutClicks = monthlyWorkoutClicks.filter((click) => click?.clickedAt && !Number.isNaN(new Date(click.clickedAt).getTime()));
   const workoutNames = new Map(workouts.map((workout) => [workout.id, workout.name]));
   const todayStart = startOfDay(now);
   const weekStart = startOfWeek(now);
@@ -180,6 +181,14 @@ export function buildUsageStats(results, workouts, now = new Date(), selectedMon
   const thisMonth = periodSummary(safeResults, monthStart, addMonths(monthStart, 1));
   const lastMonthStart = addMonths(monthStart, -1);
   const lastMonth = periodSummary(safeResults, lastMonthStart, monthStart);
+  const selectedMonthClicks = inRange(safeMonthlyWorkoutClicks, monthStart, addMonths(monthStart, 1), 'clickedAt');
+  const previousMonthClicks = inRange(safeMonthlyWorkoutClicks, lastMonthStart, monthStart, 'clickedAt');
+  const clickTitleCounts = new Map();
+  selectedMonthClicks.forEach((click) => {
+    const title = String(click.workoutTitle || '').trim();
+    if (title) clickTitleCounts.set(title, (clickTitleCounts.get(title) || 0) + 1);
+  });
+  const topClickedWorkout = [...clickTitleCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0];
   const days = dailySeries(safeResults, now, 30);
   const dailyTrend = days.slice(-14);
   const weeks = weeklySeries(safeResults, now, 8);
@@ -216,6 +225,14 @@ export function buildUsageStats(results, workouts, now = new Date(), selectedMon
     comparisons: {
       week: { entries: delta(thisWeek.entries, lastWeek.entries), users: delta(thisWeek.users, lastWeek.users) },
       month: { entries: delta(thisMonth.entries, lastMonth.entries), users: delta(thisMonth.users, lastMonth.users) },
+    },
+    monthlyWorkoutClicks: {
+      selected: selectedMonthClicks.length,
+      previous: previousMonthClicks.length,
+      comparison: delta(selectedMonthClicks.length, previousMonthClicks.length),
+      lifetime: safeMonthlyWorkoutClicks.length,
+      topWorkoutTitle: topClickedWorkout?.[0] || null,
+      topWorkoutClicks: topClickedWorkout?.[1] || 0,
     },
     averages: {
       dailyUsers: average(days, 'users'),
