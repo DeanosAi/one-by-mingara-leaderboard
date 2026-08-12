@@ -5,6 +5,7 @@ const APP_SHELL = [
   scopeUrl.href,
   new URL('manifest.webmanifest', scopeUrl).href,
   new URL('icon.svg', scopeUrl).href,
+  new URL('one-by-mingara-logo.jpg', scopeUrl).href,
 ];
 
 self.addEventListener('install', (event) => {
