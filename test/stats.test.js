@@ -85,3 +85,17 @@ test('usage stats recognise every configured workout', () => {
   );
   assert.equal(stats.workoutBreakdown.every((item) => item.value === 1), true);
 });
+
+test('usage stats label dynamic monthly workout results by their saved title', () => {
+  const now = new Date(2026, 7, 12, 12, 0, 0);
+  const monthlyResult = {
+    ...result('Monthly Athlete', 'monthly-august-2026', new Date(2026, 7, 12, 10).toISOString()),
+    workoutName: 'HYROX Engine Builder',
+    workoutMonthLabel: 'August 2026',
+    isMonthlyWorkout: true,
+  };
+  const stats = buildUsageStats([monthlyResult], configuredWorkouts, now);
+
+  assert.equal(stats.workoutBreakdown[0].label, 'HYROX Engine Builder');
+  assert.deepEqual(stats.monthlyParticipants[0].workouts, ['HYROX Engine Builder']);
+});

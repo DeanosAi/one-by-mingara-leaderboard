@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { createApp } from '../server/app.js';
+import { monthlyWorkoutToTrackable } from '../shared/workouts.js';
 
 async function withServer(run) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'one-leaderboard-'));
@@ -151,6 +152,44 @@ test('Team can publish a persistent Workout of the Month while public editing st
   });
   assert.equal(invalid.status, 400);
   assert.match(invalid.body.error, /exercise/i);
+}));
+
+test('Workout of the Month accepts ranked times and keeps their workout details for Team moderation', () => withServer(async (baseUrl) => {
+  const monthlyResponse = await json(`${baseUrl}/api/monthly-workout`);
+  const monthlyWorkout = monthlyWorkoutToTrackable(monthlyResponse.body.workout);
+  const before = await json(`${baseUrl}/api/workouts/${monthlyWorkout.id}/results`);
+  assert.equal(before.status, 200);
+  assert.equal(before.body.total, 0);
+
+  const slower = await json(`${baseUrl}/api/workouts/${monthlyWorkout.id}/results`, {
+    method: 'POST',
+    body: JSON.stringify({ name: 'Monthly Athlete One', timeCentiseconds: 123000 }),
+  });
+  const faster = await json(`${baseUrl}/api/workouts/${monthlyWorkout.id}/results`, {
+    method: 'POST',
+    body: JSON.stringify({ name: 'Monthly Athlete Two', timeCentiseconds: 111500 }),
+  });
+  const longWorkout = await json(`${baseUrl}/api/workouts/${monthlyWorkout.id}/results`, {
+    method: 'POST',
+    body: JSON.stringify({ name: 'Monthly Endurance Athlete', timeCentiseconds: 450000 }),
+  });
+  assert.equal(slower.status, 201);
+  assert.equal(faster.status, 201);
+  assert.equal(longWorkout.status, 201);
+  assert.equal(faster.body.rank, 1);
+  assert.equal(faster.body.result.isMonthlyWorkout, true);
+  assert.equal(faster.body.result.workoutName, 'HYROX Engine Builder');
+  assert.equal(faster.body.result.workoutMonthLabel, 'August 2026');
+
+  const leaderboard = await json(`${baseUrl}/api/workouts/${monthlyWorkout.id}/results`);
+  assert.deepEqual(leaderboard.body.results.map((result) => result.timeCentiseconds), [111500, 123000, 450000]);
+
+  const login = await json(`${baseUrl}/api/admin/login`, { method: 'POST', body: JSON.stringify({ password: 'test-secret' }) });
+  const headers = { Authorization: `Bearer ${login.body.token}` };
+  const adminResults = await json(`${baseUrl}/api/admin/results`, { headers });
+  const monthlyAdminResults = adminResults.body.results.filter((result) => result.workoutId === monthlyWorkout.id);
+  assert.equal(monthlyAdminResults.length, 3);
+  assert.equal(monthlyAdminResults[0].workoutName, 'HYROX Engine Builder');
 }));
 
 test('admin login protects moderation and deletion removes a result', () => withServer(async (baseUrl) => {

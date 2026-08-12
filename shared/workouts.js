@@ -69,6 +69,40 @@ export const workouts = [
 
 export const workoutById = (id) => workouts.find((workout) => workout.id === id);
 
+export function monthlyWorkoutResultId(workout) {
+  const updatedAt = new Date(workout?.updatedAt);
+  const period = Number.isNaN(updatedAt.getTime())
+    ? 'current'
+    : `${updatedAt.getUTCFullYear()}-${String(updatedAt.getUTCMonth() + 1).padStart(2, '0')}`;
+  const titleSlug = String(workout?.title || workout?.monthLabel || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 40);
+  return `monthly-${period}-${titleSlug || 'workout'}`;
+}
+
+export function monthlyWorkoutToTrackable(workout) {
+  if (!workout) return null;
+  return {
+    id: monthlyWorkoutResultId(workout),
+    name: workout.title || 'Workout of the Month',
+    monthLabel: workout.monthLabel || 'Current month',
+    eyebrow: 'Workout of the Month',
+    description: workout.description || 'Complete the featured workout for time.',
+    active: true,
+    isMonthlyWorkout: true,
+    rankingMetric: 'time_asc',
+    resultFields: [
+      { id: 'timeCentiseconds', label: 'Completion time', type: 'time', unit: 'min:sec.00', required: true },
+    ],
+    display: { icon: 'calendar', accent: '#8fcebb', shortCode: 'MONTH', statLabel: 'Fastest time' },
+    validation: { minTimeCentiseconds: 3000, maxTimeCentiseconds: 1079999 },
+  };
+}
+
 export function formatTime(totalCentiseconds) {
   const value = Number(totalCentiseconds);
   if (!Number.isFinite(value) || value < 0) return '—';

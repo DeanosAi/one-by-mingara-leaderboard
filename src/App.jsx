@@ -29,7 +29,7 @@ import {
   UsersRound,
   X,
 } from 'lucide-react';
-import { workouts, workoutById, formatTime } from '../shared/workouts.js';
+import { formatTime, monthlyWorkoutToTrackable, workouts, workoutById } from '../shared/workouts.js';
 import { api } from './api.js';
 import { adminLoginNote, assetPath, platform } from './base-path.js';
 import { subscribeToResultUpdates } from './live-updates.js';
@@ -66,6 +66,7 @@ function ShellHeader({ backTo, title, dark = false, admin = false }) {
 }
 
 function WorkoutIcon({ icon, size = 24 }) {
+  if (icon === 'calendar') return <CalendarDays size={size} />;
   if (icon === 'timer') return <Timer size={size} />;
   if (icon === 'target') return <Target size={size} />;
   if (icon === 'gauge') return <Gauge size={size} />;
@@ -252,20 +253,39 @@ function Home() {
 function MonthlyWorkoutPage() {
   const [workout, setWorkout] = useState(null);
   const [error, setError] = useState('');
+  const [resultData, setResultData] = useState(null);
+  const [resultsLoading, setResultsLoading] = useState(true);
+  const [resultsError, setResultsError] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [submission, setSubmission] = useState(null);
+  const [highlightId, setHighlightId] = useState(null);
+  const resultWorkout = useMemo(() => monthlyWorkoutToTrackable(workout), [workout]);
 
   useEffect(() => {
     document.title = 'Workout of the Month | One by Mingara';
     let active = true;
-    const load = () => api.getMonthlyWorkout()
-      .then((response) => {
-        if (active) {
-          setWorkout(response.workout);
-          setError('');
+    const load = async () => {
+      try {
+        const response = await api.getMonthlyWorkout();
+        if (!active) return;
+        setWorkout(response.workout);
+        setError('');
+        setResultsLoading(true);
+        try {
+          const results = await api.getWorkoutResults(monthlyWorkoutToTrackable(response.workout).id);
+          if (active) {
+            setResultData(results);
+            setResultsError('');
+          }
+        } catch (requestError) {
+          if (active) setResultsError(requestError.message);
+        } finally {
+          if (active) setResultsLoading(false);
         }
-      })
-      .catch((requestError) => {
+      } catch (requestError) {
         if (active) setError(requestError.message);
-      });
+      }
+    };
     load();
     const unsubscribe = subscribeToResultUpdates(load);
     return () => {
@@ -273,6 +293,31 @@ function MonthlyWorkoutPage() {
       unsubscribe();
     };
   }, []);
+
+  async function refreshResults() {
+    if (!resultWorkout) return;
+    setResultsLoading(true);
+    try {
+      setResultData(await api.getWorkoutResults(resultWorkout.id));
+      setResultsError('');
+    } catch (requestError) {
+      setResultsError(requestError.message);
+    } finally {
+      setResultsLoading(false);
+    }
+  }
+
+  async function handleSubmitted(response) {
+    setShowForm(false);
+    setSubmission(response);
+    setHighlightId(response.result.id);
+    await refreshResults();
+  }
+
+  function closeSuccess() {
+    setSubmission(null);
+    setTimeout(() => document.querySelector('.monthly-workout-standings .leader-row--highlight')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+  }
 
   return (
     <div className="app-page monthly-workout-page">
@@ -319,12 +364,47 @@ function MonthlyWorkoutPage() {
                   <div><p className="eyebrow">Team note</p><strong>{workout.coachNote}</strong></div>
                 </div>
               )}
+              <div className="monthly-workout-record">
+                <button className="primary-button primary-button--full" type="button" onClick={() => setShowForm(true)}>
+                  <span className="submit-dock__icon"><Timer size={19} /></span>
+                  RECORD YOUR TIME
+                  <ArrowRight size={19} />
+                </button>
+                <p>Finished the session? Add your completion time to this month’s leaderboard.</p>
+              </div>
+              <section className="monthly-workout-standings" aria-labelledby="monthly-standings-title">
+                <div className="section-heading section-heading--leaderboard">
+                  <div><p className="eyebrow">This month</p><h2 id="monthly-standings-title">Workout leaderboard</h2></div>
+                  <button className="refresh-button" type="button" onClick={refreshResults} aria-label="Refresh monthly workout leaderboard"><RefreshCw size={17} /> Live</button>
+                </div>
+                <div className="monthly-workout-summary">
+                  <div><span><Trophy size={14} /> Fastest time</span><strong>{resultData?.results?.[0] ? formatTime(resultData.results[0].timeCentiseconds) : '—'}</strong></div>
+                  <div><span><UsersRound size={14} /> Results logged</span><strong>{resultData?.total ?? '—'}</strong></div>
+                </div>
+                <div className="leaderboard-labels"><span>Rank & competitor</span><span>Result</span></div>
+                {resultsError ? (
+                  <div className="empty-state"><p>{resultsError}</p><button onClick={refreshResults} type="button">Try again</button></div>
+                ) : resultsLoading ? (
+                  <div className="leaderboard-skeleton" aria-label="Loading monthly workout leaderboard">{Array.from({ length: 3 }, (_, index) => <span key={index} />)}</div>
+                ) : !resultData?.results?.length ? (
+                  <div className="empty-state"><Trophy size={32} /><h3>Be the first on the board.</h3><p>Record your time and set this month’s pace.</p></div>
+                ) : (
+                  <div className="leaderboard-list">
+                    {resultData.results.map((result, index) => (
+                      <LeaderboardRow key={result.id} result={result} rank={index + 1} highlight={result.id === highlightId} />
+                    ))}
+                  </div>
+                )}
+                <p className="leaderboard-footnote"><span /> Results update live across all devices.</p>
+              </section>
               <p className="monthly-workout-updated">Updated {new Date(workout.updatedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </section>
           </>
         )}
       </main>
       <footer className="app-footer"><OneLogo compact /></footer>
+      {showForm && resultWorkout && <SubmissionSheet workout={resultWorkout} onClose={() => setShowForm(false)} onSubmitted={handleSubmitted} />}
+      {submission && resultWorkout && <SuccessModal workout={resultWorkout} submission={submission} onClose={closeSuccess} />}
     </div>
   );
 }
@@ -355,14 +435,14 @@ function LeaderboardRow({ result, rank, showWeight, highlight }) {
   );
 }
 
-function TimePicker({ value, onChange }) {
+function TimePicker({ value, onChange, maxMinutes = 59 }) {
   const setPart = (part, next) => onChange({ ...value, [part]: Number(next) });
   return (
     <div className="time-picker">
       <label>
         <span>Minutes</span>
         <select value={value.minutes} onChange={(event) => setPart('minutes', event.target.value)} aria-label="Minutes">
-          {Array.from({ length: 60 }, (_, value) => <option key={value} value={value}>{String(value).padStart(2, '0')}</option>)}
+          {Array.from({ length: maxMinutes + 1 }, (_, value) => <option key={value} value={value}>{String(value).padStart(2, '0')}</option>)}
         </select>
         <small>MIN</small>
       </label>
@@ -388,9 +468,11 @@ function TimePicker({ value, onChange }) {
 
 function SubmissionSheet({ workout, onClose, onSubmitted }) {
   const [name, setName] = useState('');
-  const [time, setTime] = useState(workout.id === 'run-1km'
-    ? { minutes: 4, seconds: 0, hundredths: 0 }
-    : { minutes: 5, seconds: 0, hundredths: 0 });
+  const [time, setTime] = useState(workout.isMonthlyWorkout
+    ? { minutes: 20, seconds: 0, hundredths: 0 }
+    : workout.id === 'run-1km'
+      ? { minutes: 4, seconds: 0, hundredths: 0 }
+      : { minutes: 5, seconds: 0, hundredths: 0 });
   const weightField = workout.resultFields.find((field) => field.id === 'ballWeightKg');
   const [weight, setWeight] = useState(weightField?.options?.[1] || null);
   const [error, setError] = useState('');
@@ -413,6 +495,7 @@ function SubmissionSheet({ workout, onClose, onSubmitted }) {
     const timeCentiseconds = time.minutes * 6000 + time.seconds * 100 + time.hundredths;
     if (trimmedName.length < 2) return setError('Please enter your name.');
     if (timeCentiseconds < workout.validation.minTimeCentiseconds) return setError('Enter a completion time of at least 0:30.00.');
+    if (timeCentiseconds > workout.validation.maxTimeCentiseconds) return setError(`Enter a completion time no longer than ${formatTime(workout.validation.maxTimeCentiseconds)}.`);
     setSubmitting(true);
     try {
       const payload = { name: trimmedName, timeCentiseconds };
@@ -444,7 +527,7 @@ function SubmissionSheet({ workout, onClose, onSubmitted }) {
 
           <fieldset className="form-group">
             <legend>Completion time</legend>
-            <TimePicker value={time} onChange={setTime} />
+            <TimePicker value={time} onChange={setTime} maxMinutes={Math.floor(workout.validation.maxTimeCentiseconds / 6000)} />
           </fieldset>
 
           {weightField && (
@@ -662,6 +745,7 @@ function Admin() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [notice, setNotice] = useState('');
+  const [monthlyWorkout, setMonthlyWorkout] = useState(null);
 
   const load = useCallback(async (authToken = token) => {
     if (!authToken) return;
@@ -669,6 +753,10 @@ function Admin() {
     try {
       const response = await api.getAdminResults(authToken);
       setResults(response.results);
+      if (platform === 'standalone') {
+        const monthlyResponse = await api.getMonthlyWorkout();
+        setMonthlyWorkout(monthlyResponse.workout);
+      }
       setError('');
     } catch (requestError) {
       setError(requestError.message);
@@ -742,8 +830,24 @@ function Admin() {
     );
   }
 
-  const adminWorkouts = workouts;
-  const selectedWorkout = workoutById(selectedWorkoutId);
+  const currentMonthlyWorkout = platform === 'standalone' ? monthlyWorkoutToTrackable(monthlyWorkout) : null;
+  const monthlyAdminWorkouts = new Map();
+  if (currentMonthlyWorkout) monthlyAdminWorkouts.set(currentMonthlyWorkout.id, currentMonthlyWorkout);
+  results.filter((result) => result.isMonthlyWorkout).forEach((result) => {
+    if (monthlyAdminWorkouts.has(result.workoutId)) return;
+    monthlyAdminWorkouts.set(result.workoutId, {
+      ...(currentMonthlyWorkout || monthlyWorkoutToTrackable({
+        monthLabel: result.workoutMonthLabel,
+        title: result.workoutName,
+        description: 'Previous Workout of the Month results.',
+      })),
+      id: result.workoutId,
+      name: result.workoutName || 'Workout of the Month',
+      monthLabel: result.workoutMonthLabel || 'Previous month',
+    });
+  });
+  const adminWorkouts = [...workouts, ...monthlyAdminWorkouts.values()];
+  const selectedWorkout = adminWorkouts.find((workout) => workout.id === selectedWorkoutId) || workouts[0];
   const selectedWorkoutResults = results
     .filter((result) => result.workoutId === selectedWorkoutId)
     .sort((a, b) => a.timeCentiseconds - b.timeCentiseconds || a.createdAt.localeCompare(b.createdAt));
@@ -800,11 +904,11 @@ function Admin() {
               aria-selected={selectedWorkoutId === workout.id}
               className={`${selectedWorkoutId === workout.id ? 'selected' : ''} ${!workout.active ? 'coming' : ''}`}
               onClick={() => selectAdminWorkout(workout.id)}
-              aria-label={workout.active ? workout.name : `${workout.name}, challenge ${workout.display.shortCode}`}
+              aria-label={workout.isMonthlyWorkout ? `Workout of the Month, ${workout.name}` : workout.active ? workout.name : `${workout.name}, challenge ${workout.display.shortCode}`}
             >
               <span><WorkoutIcon icon={workout.display.icon} size={18} /></span>
-              <strong>{workout.name}</strong>
-              <small>{workout.active ? `${results.filter((result) => result.workoutId === workout.id).length} results` : `Challenge ${workout.display.shortCode}`}</small>
+              <strong>{workout.isMonthlyWorkout ? 'Workout of the Month' : workout.name}</strong>
+              <small>{workout.isMonthlyWorkout ? `${workout.name} · ${results.filter((result) => result.workoutId === workout.id).length} results` : workout.active ? `${results.filter((result) => result.workoutId === workout.id).length} results` : `Challenge ${workout.display.shortCode}`}</small>
             </button>
           ))}
         </div>
@@ -838,7 +942,7 @@ function Admin() {
           <div className="admin-results">
             {visibleResults.map((result) => (
               <article className="admin-result" key={result.id}>
-                <span className="admin-result__icon"><WorkoutIcon icon={workoutById(result.workoutId)?.display.icon} size={19} /></span>
+                <span className="admin-result__icon"><WorkoutIcon icon={adminWorkouts.find((workout) => workout.id === result.workoutId)?.display.icon || workoutById(result.workoutId)?.display.icon} size={19} /></span>
                 <div className="admin-result__person"><strong>{result.name}</strong><span>{result.workoutName}</span><small>{new Date(result.createdAt).toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' })}</small></div>
                 <div className="admin-result__score"><strong>{formatTime(result.timeCentiseconds)}</strong>{result.ballWeightKg && <span>{result.ballWeightKg} kg</span>}</div>
                 <button className="delete-button" type="button" onClick={() => remove(result)} disabled={deletingId === result.id} aria-label={`Delete ${result.name}'s result`}>

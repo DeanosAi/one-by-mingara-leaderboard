@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes, randomUUID } from 'node:crypto';
-import { workouts, workoutById } from '../shared/workouts.js';
+import { formatTime, monthlyWorkoutToTrackable, workouts, workoutById } from '../shared/workouts.js';
 import { createStore } from './store.js';
 import { createAdminCredentialStore } from './admin-auth.js';
 import { createMonthlyWorkoutStore } from './monthly-workout.js';
@@ -44,6 +44,13 @@ export function createApp(options = {}) {
     next();
   }
 
+  function resolveTrackableWorkout(workoutId) {
+    const standardWorkout = workoutById(workoutId);
+    if (standardWorkout) return standardWorkout;
+    const monthlyWorkout = monthlyWorkoutToTrackable(monthlyWorkoutStore.get());
+    return monthlyWorkout.id === workoutId ? monthlyWorkout : null;
+  }
+
   app.get('/api/health', (_request, response) => {
     response.json({ ok: true, storage: 'shared-file', timestamp: new Date().toISOString() });
   });
@@ -63,14 +70,14 @@ export function createApp(options = {}) {
   });
 
   app.get('/api/workouts/:workoutId/results', (request, response) => {
-    const workout = workoutById(request.params.workoutId);
+    const workout = resolveTrackableWorkout(request.params.workoutId);
     if (!workout || !workout.active) return response.status(404).json({ error: 'Workout not found.' });
     const results = store.list(workout.id);
     response.json({ workout, results, total: results.length });
   });
 
   app.post('/api/workouts/:workoutId/results', (request, response) => {
-    const workout = workoutById(request.params.workoutId);
+    const workout = resolveTrackableWorkout(request.params.workoutId);
     if (!workout || !workout.active) return response.status(404).json({ error: 'Workout not found.' });
 
     const name = cleanName(request.body.name);
@@ -79,7 +86,7 @@ export function createApp(options = {}) {
       return response.status(400).json({ error: 'Enter a name between 2 and 40 characters.' });
     }
     if (!Number.isInteger(timeCentiseconds) || timeCentiseconds < workout.validation.minTimeCentiseconds || timeCentiseconds > workout.validation.maxTimeCentiseconds) {
-      return response.status(400).json({ error: 'Enter a valid completion time between 0:30.00 and 59:59.99.' });
+      return response.status(400).json({ error: `Enter a valid completion time between 0:30.00 and ${formatTime(workout.validation.maxTimeCentiseconds)}.` });
     }
 
     const result = {
@@ -87,6 +94,11 @@ export function createApp(options = {}) {
       workoutId: workout.id,
       name,
       timeCentiseconds,
+      ...(workout.isMonthlyWorkout ? {
+        isMonthlyWorkout: true,
+        workoutName: workout.name,
+        workoutMonthLabel: workout.monthLabel,
+      } : {}),
       createdAt: new Date().toISOString(),
     };
 
@@ -166,7 +178,7 @@ export function createApp(options = {}) {
   app.get('/api/admin/results', requireAdmin, (_request, response) => {
     const results = store.list()
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-      .map((result) => ({ ...result, workoutName: workoutById(result.workoutId)?.name || result.workoutId }));
+      .map((result) => ({ ...result, workoutName: workoutById(result.workoutId)?.name || result.workoutName || result.workoutId }));
     response.json({ results, total: results.length });
   });
 
