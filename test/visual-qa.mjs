@@ -172,6 +172,7 @@ try {
   await mobile.locator('.period-card').first().waitFor();
   assert.equal(await mobile.locator('.period-card').count(), 3);
   await mobile.locator('.monthly-click-card').waitFor();
+  await mobile.getByRole('heading', { name: 'WORKOUT OF THE MONTH BUTTON CLICKS' }).waitFor();
   assert.equal(await mobile.locator('.monthly-click-card__metric > strong').textContent(), '1');
   await mobile.getByText('Most clicked workout: HYROX Engine Builder', { exact: true }).waitFor();
   assert.equal(await mobile.locator('.donut-card').count(), 2);
