@@ -58,6 +58,34 @@ test('War Balls records weight without using it in ranking', () => withServer(as
   assert.equal(slowerHeavy.body.result.ballWeightKg, 12);
 }));
 
+test('Row, Ski and Burpee Broad Jump leaderboards accept results and rank fastest-first', () => withServer(async (baseUrl) => {
+  const workoutIds = ['row-1km', 'ski-1km', 'burpee-broad-jumps-80m'];
+
+  for (const workoutId of workoutIds) {
+    const slower = await json(`${baseUrl}/api/workouts/${workoutId}/results`, {
+      method: 'POST',
+      body: JSON.stringify({ name: `${workoutId} Athlete One`, timeCentiseconds: 35000 }),
+    });
+    const faster = await json(`${baseUrl}/api/workouts/${workoutId}/results`, {
+      method: 'POST',
+      body: JSON.stringify({ name: `${workoutId} Athlete Two`, timeCentiseconds: 32000 }),
+    });
+    const leaderboard = await json(`${baseUrl}/api/workouts/${workoutId}/results`);
+
+    assert.equal(slower.status, 201);
+    assert.equal(faster.status, 201);
+    assert.equal(faster.body.rank, 1);
+    assert.equal(leaderboard.status, 200);
+    assert.deepEqual(leaderboard.body.results.map((result) => result.timeCentiseconds), [32000, 35000]);
+  }
+
+  const workoutsResponse = await json(`${baseUrl}/api/workouts`);
+  assert.deepEqual(
+    workoutsResponse.body.workouts.filter((workout) => workout.active).map((workout) => workout.name),
+    ['1KM Run', '100 War Balls', '1KM Row', '1KM Ski', '80m Burpee Broad Jumps'],
+  );
+}));
+
 test('invalid public submissions are rejected helpfully', () => withServer(async (baseUrl) => {
   const blank = await json(`${baseUrl}/api/workouts/run-1km/results`, {
     method: 'POST',

@@ -26,17 +26,45 @@ export const workouts = [
     display: { icon: 'target', accent: '#8fcebb', shortCode: '02', statLabel: 'Fastest time' },
     validation: { minTimeCentiseconds: 3000, maxTimeCentiseconds: 359999 },
   },
-  ...Array.from({ length: 3 }, (_, index) => ({
-    id: `coming-soon-${index + 1}`,
-    name: 'Coming Soon',
-    eyebrow: 'Next challenge',
-    description: 'A new One by Mingara challenge is on the way.',
-    active: false,
-    rankingMetric: null,
-    resultFields: [],
-    display: { icon: 'lock', accent: '#cfe2e9', shortCode: `0${index + 3}`, statLabel: null },
-    validation: {},
-  })),
+  {
+    id: 'row-1km',
+    name: '1KM Row',
+    eyebrow: 'Power endurance',
+    description: 'Row one kilometre on the erg. Your fastest verified completion time takes the lead.',
+    active: true,
+    rankingMetric: 'time_asc',
+    resultFields: [
+      { id: 'timeCentiseconds', label: 'Completion time', type: 'time', unit: 'min:sec.00', required: true },
+    ],
+    display: { icon: 'gauge', accent: '#75bfd0', shortCode: '03', statLabel: 'Fastest time' },
+    validation: { minTimeCentiseconds: 3000, maxTimeCentiseconds: 359999 },
+  },
+  {
+    id: 'ski-1km',
+    name: '1KM Ski',
+    eyebrow: 'Full-body endurance',
+    description: 'Complete one kilometre on the SkiErg. The fastest verified completion time ranks first.',
+    active: true,
+    rankingMetric: 'time_asc',
+    resultFields: [
+      { id: 'timeCentiseconds', label: 'Completion time', type: 'time', unit: 'min:sec.00', required: true },
+    ],
+    display: { icon: 'sparkles', accent: '#a4d8ca', shortCode: '04', statLabel: 'Fastest time' },
+    validation: { minTimeCentiseconds: 3000, maxTimeCentiseconds: 359999 },
+  },
+  {
+    id: 'burpee-broad-jumps-80m',
+    name: '80m Burpee Broad Jumps',
+    eyebrow: 'Conditioning challenge',
+    description: 'Complete 80 metres of burpee broad jumps for time. The fastest verified completion time takes the lead.',
+    active: true,
+    rankingMetric: 'time_asc',
+    resultFields: [
+      { id: 'timeCentiseconds', label: 'Completion time', type: 'time', unit: 'min:sec.00', required: true },
+    ],
+    display: { icon: 'dumbbell', accent: '#87b6d1', shortCode: '05', statLabel: 'Fastest time' },
+    validation: { minTimeCentiseconds: 3000, maxTimeCentiseconds: 359999 },
+  },
 ];
 
 export const workoutById = (id) => workouts.find((workout) => workout.id === id);

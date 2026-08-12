@@ -1,6 +1,6 @@
 # One by Mingara Leaderboard
 
-Mobile-first proof of concept for shared member workout leaderboards. It includes two active challenges, three configurable Coming Soon slots, instant cross-device updates, result ranking, installable PWA metadata, and staff moderation.
+Mobile-first proof of concept for shared member workout leaderboards. It includes five active challenges (1KM Run, 100 War Balls, 1KM Row, 1KM Ski, and 80m Burpee Broad Jumps), instant cross-device updates, result ranking, installable PWA metadata, and staff moderation.
 
 ## Run locally
 
