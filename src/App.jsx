@@ -1042,8 +1042,8 @@ function AdminMonthlyWorkout() {
             </div>
 
             <div className="monthly-admin-grid">
-              <label><span>Month label</span><input value={draft.monthLabel} onChange={(event) => updateField('monthLabel', event.target.value)} minLength={2} maxLength={40} required placeholder="August 2026" /></label>
-              <label><span>Workout format</span><input value={draft.format} onChange={(event) => updateField('format', event.target.value)} minLength={2} maxLength={80} required placeholder="3 rounds for time" /></label>
+              <label><span>MONTH</span><input value={draft.monthLabel} onChange={(event) => updateField('monthLabel', event.target.value)} minLength={2} maxLength={40} required placeholder="August 2026" /></label>
+              <label><span>HOW MANY ROUNDS</span><input value={draft.format} onChange={(event) => updateField('format', event.target.value)} minLength={2} maxLength={80} required placeholder="3 rounds for time" /></label>
             </div>
             <label><span>Workout title</span><input value={draft.title} onChange={(event) => updateField('title', event.target.value)} minLength={3} maxLength={80} required placeholder="HYROX Engine Builder" /></label>
             <label><span>Description</span><textarea value={draft.description} onChange={(event) => updateField('description', event.target.value)} minLength={10} maxLength={500} required rows={4} placeholder="Describe the purpose of this month’s session." /></label>
