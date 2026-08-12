@@ -350,6 +350,12 @@ function MonthlyWorkoutPage() {
                 <div><p className="eyebrow">Your session</p><h2>Complete in order.</h2></div>
                 <span>{workout.exercises.length} movements</span>
               </div>
+              {workout.coachNote && (
+                <div className="monthly-workout-note">
+                  <span><Sparkles size={20} /></span>
+                  <div><p className="eyebrow">Team note</p><strong>{workout.coachNote}</strong></div>
+                </div>
+              )}
               <ol className="monthly-workout-list">
                 {workout.exercises.map((exercise, index) => (
                   <li key={`${exercise}-${index}`}>
@@ -358,12 +364,6 @@ function MonthlyWorkoutPage() {
                   </li>
                 ))}
               </ol>
-              {workout.coachNote && (
-                <div className="monthly-workout-note">
-                  <span><Sparkles size={20} /></span>
-                  <div><p className="eyebrow">Team note</p><strong>{workout.coachNote}</strong></div>
-                </div>
-              )}
               <div className="monthly-workout-record">
                 <button className="primary-button primary-button--full" type="button" onClick={() => setShowForm(true)}>
                   <span className="submit-dock__icon"><Timer size={19} /></span>
