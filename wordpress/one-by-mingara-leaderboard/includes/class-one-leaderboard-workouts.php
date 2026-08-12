@@ -22,7 +22,7 @@ final class One_Leaderboard_Workouts {
 			),
 			array(
 				'id'            => 'war-balls-100',
-				'name'          => '100 War Balls',
+				'name'          => '100 Wall Balls',
 				'eyebrow'       => 'Strength endurance',
 				'description'   => 'Complete 100 war ball repetitions for time. Ball weight is recorded, while ranking is based on speed only.',
 				'active'        => true,
@@ -85,4 +85,3 @@ final class One_Leaderboard_Workouts {
 		return null;
 	}
 }
-

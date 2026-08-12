@@ -154,6 +154,52 @@ function Home() {
             })}
           </div>
 
+          <details className="hyrox-test">
+            <summary className="hyrox-test__summary">
+              <span className="hyrox-test__summary-icon"><Gauge size={23} /></span>
+              <span className="hyrox-test__summary-copy">
+                <span className="hyrox-test__eyebrow">HYROX Physical Fitness Test</span>
+                <strong>Which division fits your pace?</strong>
+                <small>Complete one test, then compare your total time.</small>
+              </span>
+              <span className="hyrox-test__toggle">
+                <span>View test</span>
+                <ChevronRight size={19} />
+              </span>
+            </summary>
+
+            <div className="hyrox-test__content">
+              <div className="hyrox-test__intro">
+                <p className="eyebrow">The workout</p>
+                <h3>Complete all six exercises for time.</h3>
+                <p>Record the total time taken to complete the full workout in this order.</p>
+              </div>
+
+              <ol className="hyrox-test__workout">
+                <li><span>01</span><strong>1km Run</strong><small>Treadmill at 2% incline</small></li>
+                <li><span>02</span><strong>50m Burpee Broad Jump</strong></li>
+                <li><span>03</span><strong>100 Alternating Forward Lunges</strong><small>Stationary</small></li>
+                <li><span>04</span><strong>1km Row</strong></li>
+                <li><span>05</span><strong>30 Hand Release Push Ups</strong></li>
+                <li><span>06</span><strong>100 Wall Balls</strong><small>6kg male / 4kg female</small></li>
+              </ol>
+
+              <div className="hyrox-test__guide">
+                <div className="hyrox-test__guide-heading">
+                  <p className="eyebrow">Indicative time guide</p>
+                  <h3>Compare your total time.</h3>
+                </div>
+                <div className="hyrox-test__divisions">
+                  <div><strong>15–20</strong><span>minutes</span><b>HYROX Pro</b></div>
+                  <div><strong>20–35</strong><span>minutes</span><b>HYROX Open</b></div>
+                  <div><strong>30–40</strong><span>minutes</span><b>HYROX Doubles</b></div>
+                  <div><strong>35–45</strong><span>minutes</span><b>HYROX Relay</b></div>
+                </div>
+                <p className="hyrox-test__note">These time ranges are an indicative guide, not an official qualification or entry requirement. The ranges overlap, so a result may suit more than one division.</p>
+              </div>
+            </div>
+          </details>
+
           <div className="team-access">
             <span>One by Mingara Team</span>
             <Link className="team-access__button" to="/admin">

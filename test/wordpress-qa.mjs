@@ -73,7 +73,7 @@ try {
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
 
   await submitResult(mobile, 'run-1km', '1KM Run', 4, 10, 20);
-  await submitResult(mobile, 'war-balls-100', '100 War Balls', 5, 20, 30, 8);
+  await submitResult(mobile, 'war-balls-100', '100 Wall Balls', 5, 20, 30, 8);
   await submitResult(mobile, 'row-1km', '1KM Row', 3, 40, 40);
   await submitResult(mobile, 'ski-1km', '1KM Ski', 3, 50, 50);
   await submitResult(mobile, 'burpee-broad-jumps-80m', '80m Burpee Broad Jumps', 6, 0, 60);
@@ -107,7 +107,7 @@ try {
 
   const secondDevice = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   await secondDevice.goto(`${baseUrl}#/workout/war-balls-100`, { waitUntil: 'domcontentloaded' });
-  await secondDevice.getByText('QA 100 War Balls', { exact: true }).waitFor();
+  await secondDevice.getByText('QA 100 Wall Balls', { exact: true }).waitFor();
   assert.equal(await secondDevice.getByText('8 kg ball').count(), 1);
   assert.equal(await secondDevice.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
   await secondDevice.screenshot({ path: path.join(outputDir, 'wordpress-workout-mobile.png'), fullPage: true });

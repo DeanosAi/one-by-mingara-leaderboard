@@ -11,7 +11,7 @@ A self-contained One by Mingara HYROX leaderboard app for a dedicated WordPress 
 
 == Features ==
 
-* Five fastest-time leaderboards: 1KM Row, 1KM Run, 1KM Ski, 100 War Balls, and 80m Burpee Broad Jumps.
+* Five fastest-time leaderboards: 1KM Row, 1KM Run, 1KM Ski, 100 Wall Balls, and 80m Burpee Broad Jumps.
 * Public result submission and fastest-first ranking.
 * Protected Team moderation with per-workout search, entry deletion, and password changes.
 * Protected usage and adoption analytics, including month selection.
@@ -33,4 +33,3 @@ Deactivation does not delete data.
 
 = 1.0.0 =
 * Initial Mingara WordPress handover release.
-

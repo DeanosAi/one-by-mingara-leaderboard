@@ -7,7 +7,7 @@ Version 1.0.0 · 12 August 2026
 The deliverable is a self-contained WordPress plugin named `one-by-mingara-leaderboard.zip`. It reproduces the current mobile-first One by Mingara app inside a dedicated WordPress page and includes:
 
 - the home page and five workout cards;
-- 1KM Row, 1KM Run, 1KM Ski, 100 War Balls and 80m Burpee Broad Jumps leaderboards;
+- 1KM Row, 1KM Run, 1KM Ski, 100 Wall Balls and 80m Burpee Broad Jumps leaderboards;
 - public result submission, validation, success confirmation and fastest-first rankings;
 - War Ball weight recording without using weight in the rank calculation;
 - automatic refresh across phones and computers;
@@ -164,13 +164,13 @@ Use a private/incognito browser window and at least one real phone. Complete eve
 
 ### Each workout
 
-Test 1KM Row, 1KM Run, 1KM Ski, 100 War Balls and 80m Burpee Broad Jumps:
+Test 1KM Row, 1KM Run, 1KM Ski, 100 Wall Balls and 80m Burpee Broad Jumps:
 
 1. Open the workout.
 2. Confirm the workout name, description and empty state.
 3. Select **Click here to Submit your results**.
 4. Submit a recognisable staging name and valid time.
-5. For 100 War Balls, select a ball weight and confirm the weight appears on the board.
+5. For 100 Wall Balls, select a ball weight and confirm the weight appears on the board.
 6. Confirm the success panel shows rank and time.
 7. Confirm the entry appears in fastest-to-slowest order.
 8. Enter a second, faster time and confirm it moves to first position.

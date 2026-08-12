@@ -1,6 +1,6 @@
 # One by Mingara Leaderboard
 
-Mobile-first proof of concept for shared member workout leaderboards. It includes five active challenges (1KM Run, 100 War Balls, 1KM Row, 1KM Ski, and 80m Burpee Broad Jumps), instant cross-device updates, result ranking, installable PWA metadata, and Team moderation.
+Mobile-first proof of concept for shared member workout leaderboards. It includes five active challenges (1KM Run, 100 Wall Balls, 1KM Row, 1KM Ski, and 80m Burpee Broad Jumps), an expandable HYROX Physical Fitness Test division guide, instant cross-device updates, result ranking, installable PWA metadata, and Team moderation.
 
 ## Run locally
 
@@ -67,4 +67,4 @@ Read `MINGARA-WORDPRESS-DEPLOYMENT-GUIDE.md` for staging, orphaned-page, product
 npm run check
 ```
 
-The tests cover fastest-time sorting, immediate rank calculation, War Balls weight display data, validation, admin protection, and moderation deletion.
+The tests cover fastest-time sorting, immediate rank calculation, Wall Balls weight display data, validation, admin protection, and moderation deletion.

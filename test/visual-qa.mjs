@@ -26,9 +26,19 @@ try {
   await mobile.getByText('Choose your challenge').waitFor();
   assert.equal(await mobile.locator('.workout-card--active').count(), 5);
   assert.equal(await mobile.locator('.workout-card--disabled').count(), 0);
-  for (const workoutName of ['1KM Run', '100 War Balls', '1KM Row', '1KM Ski', '80m Burpee Broad Jumps']) {
+  for (const workoutName of ['1KM Run', '100 Wall Balls', '1KM Row', '1KM Ski', '80m Burpee Broad Jumps']) {
     assert.equal(await mobile.getByRole('button', { name: `Open ${workoutName} leaderboard` }).count(), 1);
   }
+  const fitnessTest = mobile.locator('.hyrox-test');
+  assert.equal(await fitnessTest.getByText('The workout').isVisible(), false);
+  await fitnessTest.locator('summary').click();
+  await fitnessTest.getByText('Complete all six exercises for time.').waitFor();
+  assert.equal(await fitnessTest.locator('.hyrox-test__workout li').count(), 6);
+  assert.equal(await fitnessTest.getByText('100 Wall Balls', { exact: true }).count(), 1);
+  for (const division of ['HYROX Pro', 'HYROX Open', 'HYROX Doubles', 'HYROX Relay']) {
+    assert.equal(await fitnessTest.getByText(division, { exact: true }).count(), 1);
+  }
+  assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
   assert.equal(await mobile.getByRole('link', { name: /Team admin login/i }).getAttribute('href'), '/admin');
   assert.equal(await mobile.getByText('One by Mingara Team').count(), 1);
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
@@ -106,12 +116,12 @@ try {
   await mobile.getByText('Mia Thompson').waitFor();
   await mobile.getByRole('button', { name: 'Clear name search' }).click();
   assert.equal(await mobile.locator('.admin-result').count(), 8);
-  await mobile.getByRole('tab', { name: /100 War Balls/ }).click();
+  await mobile.getByRole('tab', { name: /100 Wall Balls/ }).click();
   assert.equal(await mobile.locator('.admin-result').count(), 7);
   assert.equal(await mobile.locator('.admin-result').filter({ hasText: '1KM Run' }).count(), 0);
   const warBallAdminTimes = await mobile.locator('.admin-result__score strong').allTextContents();
   assert.deepEqual(warBallAdminTimes, ['5:12.20', '5:20.84', '5:28.11', '5:35.64', '5:42.09', '5:56.42', '6:09.75']);
-  await mobile.getByRole('searchbox', { name: /Search 100 War Balls results by name/ }).fill('Mia');
+  await mobile.getByRole('searchbox', { name: /Search 100 Wall Balls results by name/ }).fill('Mia');
   assert.equal(await mobile.locator('.admin-result').count(), 0);
   await mobile.getByText('No matching names found.').waitFor();
   assert.equal(await mobile.getByRole('tab').count(), 5);

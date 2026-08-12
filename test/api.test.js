@@ -43,7 +43,7 @@ test('1KM Run submissions are trimmed, persisted and ranked fastest-first', () =
   assert.ok(after.body.results.some((result) => result.id === submitted.body.result.id));
 }));
 
-test('War Balls records weight without using it in ranking', () => withServer(async (baseUrl) => {
+test('Wall Balls records weight without using it in ranking', () => withServer(async (baseUrl) => {
   const slowerHeavy = await json(`${baseUrl}/api/workouts/war-balls-100/results`, {
     method: 'POST',
     body: JSON.stringify({ name: 'Heavy Athlete', timeCentiseconds: 33000, ballWeightKg: 12 }),
@@ -82,7 +82,7 @@ test('Row, Ski and Burpee Broad Jump leaderboards accept results and rank fastes
   const workoutsResponse = await json(`${baseUrl}/api/workouts`);
   assert.deepEqual(
     workoutsResponse.body.workouts.filter((workout) => workout.active).map((workout) => workout.name),
-    ['1KM Run', '100 War Balls', '1KM Row', '1KM Ski', '80m Burpee Broad Jumps'],
+    ['1KM Run', '100 Wall Balls', '1KM Row', '1KM Ski', '80m Burpee Broad Jumps'],
   );
 }));
 
