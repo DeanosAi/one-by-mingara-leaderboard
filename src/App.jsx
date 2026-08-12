@@ -63,6 +63,9 @@ function ShellHeader({ backTo, title, dark = false, admin = false }) {
 function WorkoutIcon({ icon, size = 24 }) {
   if (icon === 'timer') return <Timer size={size} />;
   if (icon === 'target') return <Target size={size} />;
+  if (icon === 'gauge') return <Gauge size={size} />;
+  if (icon === 'sparkles') return <Sparkles size={size} />;
+  if (icon === 'dumbbell') return <Dumbbell size={size} />;
   return <LockKeyhole size={size} />;
 }
 
@@ -102,7 +105,7 @@ function Home() {
             <h1>HYROX<br /><em>Leaderboard</em></h1>
             <p className="home-hero__copy">Take on a challenge, log your result and see where you rank at One by Mingara.</p>
             <div className="hero-stats" aria-label="Challenge summary">
-              <div><strong>2</strong><span>Challenges live</span></div>
+              <div><strong>{workouts.filter((workout) => workout.active).length}</strong><span>Challenges live</span></div>
               <div className="hero-stats__rule" />
               <div><strong>{Object.values(snapshots).reduce((sum, item) => sum + item.total, 0) || '—'}</strong><span>Results logged</span></div>
             </div>

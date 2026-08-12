@@ -23,8 +23,11 @@ try {
   await mobile.goto(baseUrl, { waitUntil: 'domcontentloaded' });
   await mobile.getByRole('heading', { name: 'HYROX Leaderboard' }).waitFor();
   await mobile.getByText('Choose your challenge').waitFor();
-  assert.equal(await mobile.locator('.workout-card--active').count(), 2);
-  assert.equal(await mobile.locator('.workout-card--disabled').count(), 3);
+  assert.equal(await mobile.locator('.workout-card--active').count(), 5);
+  assert.equal(await mobile.locator('.workout-card--disabled').count(), 0);
+  for (const workoutName of ['1KM Run', '100 War Balls', '1KM Row', '1KM Ski', '80m Burpee Broad Jumps']) {
+    assert.equal(await mobile.getByRole('button', { name: `Open ${workoutName} leaderboard` }).count(), 1);
+  }
   assert.equal(await mobile.getByRole('link', { name: /Staff admin login/i }).getAttribute('href'), '/admin');
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
   const manifest = await mobile.evaluate(() => fetch('/manifest.webmanifest').then((response) => response.json()));
@@ -67,6 +70,18 @@ try {
   await mobile.getByRole('button', { name: '12 kg' }).click();
   assert.ok(await mobile.getByRole('button', { name: '12 kg' }).getAttribute('class').then((value) => value.includes('selected')));
 
+  for (const [workoutId, workoutName] of [
+    ['row-1km', '1KM Row'],
+    ['ski-1km', '1KM Ski'],
+    ['burpee-broad-jumps-80m', '80m Burpee Broad Jumps'],
+  ]) {
+    await mobile.goto(`${baseUrl}/workout/${workoutId}`, { waitUntil: 'domcontentloaded' });
+    await mobile.getByRole('heading', { name: workoutName }).waitFor();
+    await mobile.getByRole('button', { name: /Click here to Submit your results/i }).waitFor();
+    await mobile.getByText('Be the first on the board.').waitFor();
+    assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+  }
+
   await mobile.goto(`${baseUrl}/admin`, { waitUntil: 'domcontentloaded' });
   await mobile.getByLabel('Admin password').fill('oneadmin');
   await mobile.screenshot({ path: path.join(outputDir, 'admin-login-mobile.png'), fullPage: true });
@@ -97,13 +112,17 @@ try {
   assert.equal(await mobile.locator('.admin-result').count(), 0);
   await mobile.getByText('No matching names found.').waitFor();
   assert.equal(await mobile.getByRole('tab').count(), 5);
-  await mobile.getByRole('tab', { name: /Coming Soon, challenge 03/ }).click();
-  assert.equal(await mobile.locator('.admin-result').count(), 0);
-  await mobile.getByText('No results for this workout.').waitFor();
+  for (const workoutName of ['1KM Row', '1KM Ski', '80m Burpee Broad Jumps']) {
+    await mobile.getByRole('tab', { name: workoutName }).click();
+    assert.equal(await mobile.locator('.admin-result').count(), 0);
+    await mobile.getByText('No results for this workout.').waitFor();
+    assert.equal(await mobile.getByRole('searchbox', { name: new RegExp(`Search ${workoutName} results by name`, 'i') }).count(), 1);
+  }
   await mobile.getByRole('tab', { name: /1KM Run/ }).click();
   await mobile.screenshot({ path: path.join(outputDir, 'admin-results-mobile.png'), fullPage: true });
   await mobile.getByRole('link', { name: 'Stats' }).click();
   await mobile.getByRole('heading', { name: 'Usage & adoption' }).waitFor();
+  await mobile.locator('.period-card').first().waitFor();
   assert.equal(await mobile.locator('.period-card').count(), 3);
   assert.equal(await mobile.locator('.donut-card').count(), 2);
   assert.equal(await mobile.locator('.stats-table-card').count(), 2);

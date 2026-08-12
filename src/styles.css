@@ -450,6 +450,7 @@ a { color: inherit; text-decoration: none; }
   .challenge-section { margin-top: -30px; }
   .workout-grid { grid-template-columns: repeat(6, 1fr); }
   .workout-card--active { grid-column: span 3; min-height: 158px; }
+  .workout-card--active:last-child:nth-child(odd) { grid-column: 2 / span 4; }
   .workout-card--disabled { grid-column: span 2; }
   .workout-card--disabled:last-child { grid-column: span 2; }
   .staff-access { max-width: 620px; margin-inline: auto; }

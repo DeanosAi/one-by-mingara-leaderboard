@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildUsageStats, normalizeParticipantName } from '../src/stats.js';
+import { workouts as configuredWorkouts } from '../shared/workouts.js';
 
 const workouts = [
   { id: 'run', name: '1KM Run' },
@@ -48,4 +49,20 @@ test('usage stats return safe zero values for an empty dataset', () => {
   assert.equal(stats.comparisons.week.entries.direction, 'flat');
   assert.deepEqual(stats.crossWorkoutParticipants, []);
   assert.equal(stats.lifetime.entriesPerUser, 0);
+});
+
+test('usage stats recognise every configured workout', () => {
+  const now = new Date(2026, 7, 12, 12, 0, 0);
+  const results = configuredWorkouts.map((workout, index) => result(
+    `Athlete ${index + 1}`,
+    workout.id,
+    new Date(2026, 7, 12, 7 + index).toISOString(),
+  ));
+  const stats = buildUsageStats(results, configuredWorkouts, now);
+
+  assert.deepEqual(
+    new Set(stats.workoutBreakdown.map((item) => item.label)),
+    new Set(['1KM Run', '100 War Balls', '1KM Row', '1KM Ski', '80m Burpee Broad Jumps']),
+  );
+  assert.equal(stats.workoutBreakdown.every((item) => item.value === 1), true);
 });
