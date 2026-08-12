@@ -29,6 +29,14 @@ try {
   for (const workoutName of ['1KM Run', '100 Wall Balls', '1KM Row', '1KM Ski', '80m Burpee Broad Jumps']) {
     assert.equal(await mobile.getByRole('button', { name: `Open ${workoutName} leaderboard` }).count(), 1);
   }
+  const monthlyWorkoutLink = mobile.getByRole('link', { name: /Workout of the Month/i });
+  assert.equal(await monthlyWorkoutLink.getAttribute('href'), '/workout-of-the-month');
+  await monthlyWorkoutLink.click();
+  await mobile.getByRole('heading', { name: 'HYROX Engine Builder' }).waitFor();
+  assert.equal(await mobile.locator('.monthly-workout-list li').count(), 4);
+  assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+  await mobile.getByRole('link', { name: 'Go back' }).click();
+  await mobile.getByText('Choose your challenge').waitFor();
   const fitnessTest = mobile.locator('.hyrox-test');
   assert.equal(await fitnessTest.getByText('The workout').isVisible(), false);
   await fitnessTest.locator('summary').click();
@@ -107,6 +115,27 @@ try {
   await mobile.getByLabel('Confirm new password').fill('oneadmin-updated');
   await mobile.getByRole('button', { name: /Update password/i }).click();
   await mobile.getByText('Admin password updated successfully.').waitFor();
+  const monthlyPeer = await browser.newPage({ viewport: { width: 360, height: 800 }, deviceScaleFactor: 1 });
+  await monthlyPeer.goto(`${baseUrl}/workout-of-the-month`, { waitUntil: 'domcontentloaded' });
+  await monthlyPeer.getByRole('heading', { name: 'HYROX Engine Builder' }).waitFor();
+  await mobile.getByRole('link', { name: /Monthly workout/i }).click();
+  await mobile.getByRole('heading', { name: 'Workout of the Month' }).waitFor();
+  await mobile.getByLabel('Month label').fill('September 2026');
+  await mobile.getByLabel('Workout title').fill('September Strength Builder');
+  await mobile.getByLabel('Workout format').fill('4 rounds for quality');
+  await mobile.getByLabel('Description').fill('A controlled strength and conditioning session for every member.');
+  await mobile.getByLabel('Exercises').fill('500m Row\n16 Wall Balls\n20 Walking Lunges');
+  await mobile.getByLabel('Team note').fill('Keep every round smooth and repeatable.');
+  await mobile.getByRole('button', { name: /Publish workout/i }).click();
+  await mobile.getByText('Workout of the Month published successfully.').waitFor();
+  await monthlyPeer.getByRole('heading', { name: 'September Strength Builder' }).waitFor();
+  assert.equal(await monthlyPeer.locator('.monthly-workout-list li').count(), 3);
+  await monthlyPeer.close();
+  await mobile.getByRole('link', { name: 'Preview' }).click();
+  await mobile.getByRole('heading', { name: 'September Strength Builder' }).waitFor();
+  assert.equal(await mobile.locator('.monthly-workout-list li').count(), 3);
+  await mobile.goto(`${baseUrl}/admin`, { waitUntil: 'domcontentloaded' });
+  await mobile.getByRole('heading', { name: 'Workout results' }).waitFor();
   assert.equal(await mobile.getByRole('tab', { name: /1KM Run/ }).getAttribute('aria-selected'), 'true');
   assert.equal(await mobile.locator('.admin-result').count(), 8);
   const runAdminTimes = await mobile.locator('.admin-result__score strong').allTextContents();

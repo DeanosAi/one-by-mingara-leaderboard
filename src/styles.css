@@ -102,6 +102,9 @@ a { color: inherit; text-decoration: none; }
 .workout-card--disabled .workout-card__icon { color: #80939b; background: #dce7e9; }
 .workout-card--disabled .workout-card__body > strong { margin-bottom: 5px; color: #607680; font-size: 23px; }
 .workout-card--disabled .workout-card__eyebrow { color: #8a9ba2; }
+.home-feature-link { min-height: 112px; margin: 0 0 22px; padding: 20px; display: grid; grid-template-columns: 48px 1fr auto; gap: 14px; align-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; color: #fff; background: linear-gradient(118deg, var(--navy-deep), #075676); box-shadow: 0 9px 28px rgba(12,60,81,.1); transition: transform .22s ease, box-shadow .22s ease; }
+.home-feature-link:hover { transform: translateY(-2px); box-shadow: 0 13px 34px rgba(12,60,81,.15); }
+.home-feature-link:focus-visible { outline: 3px solid var(--mint); outline-offset: 3px; }
 .hyrox-test { margin-top: 28px; overflow: hidden; border: 1px solid #c8dce2; border-radius: 18px; background: #fff; box-shadow: 0 9px 28px rgba(12, 60, 81, .07); }
 .hyrox-test__summary { min-height: 112px; padding: 20px; display: grid; grid-template-columns: 48px 1fr auto; gap: 14px; align-items: center; color: #fff; background: linear-gradient(118deg, var(--navy-deep), #075676); cursor: pointer; list-style: none; }
 .hyrox-test__summary::-webkit-details-marker { display: none; }
@@ -137,6 +140,36 @@ a { color: inherit; text-decoration: none; }
 .team-access__button:hover { transform: translateY(-1px); border-color: var(--sky); box-shadow: 0 8px 20px rgba(10,65,86,.1); }
 .team-access__button svg:first-child { color: var(--blue); }
 .app-footer { padding: 25px 18px calc(25px + env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: center; gap: 20px; border-top: 1px solid var(--line); }
+
+.monthly-workout-page { background: #f4f8f8; }
+.monthly-workout-hero { position: relative; min-height: 390px; padding: 58px 0 72px; overflow: hidden; color: #fff; background: linear-gradient(122deg, var(--navy-deep), #08607f); }
+.monthly-workout-hero::after { content: ''; position: absolute; left: -10%; right: -10%; bottom: -72px; height: 122px; border-radius: 50% 50% 0 0; background: #f4f8f8; transform: rotate(-2deg); }
+.monthly-workout-hero__ring { position: absolute; width: 310px; height: 310px; right: -145px; top: -80px; border: 52px solid rgba(143,206,187,.12); border-radius: 50%; }
+.monthly-workout-hero__content { position: relative; z-index: 1; }
+.monthly-workout-hero__icon { width: 56px; height: 56px; margin-bottom: 28px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.16); border-radius: 16px; color: var(--mint); background: rgba(255,255,255,.08); }
+.monthly-workout-hero .eyebrow { color: var(--mint); }
+.monthly-workout-hero h1 { max-width: 730px; margin: 0; font-family: var(--display); font-size: clamp(52px, 14vw, 82px); line-height: .9; letter-spacing: -.03em; text-transform: uppercase; }
+.monthly-workout-hero__content > p:not(.eyebrow) { max-width: 620px; margin: 18px 0 22px; color: rgba(255,255,255,.7); font-size: 12px; line-height: 1.7; }
+.monthly-workout-format { width: fit-content; min-height: 39px; padding: 0 12px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,.15); border-radius: 999px; color: #fff; background: rgba(255,255,255,.07); font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.monthly-workout-format svg { color: var(--mint); }
+.monthly-workout-body { position: relative; z-index: 2; margin-top: -31px; padding-bottom: 54px; }
+.monthly-workout-heading { margin-bottom: 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 15px; }
+.monthly-workout-heading h2 { margin: 0; color: var(--navy); font-family: var(--display); font-size: 32px; line-height: 1; text-transform: uppercase; }
+.monthly-workout-heading > span { color: var(--muted); font-size: 8px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.monthly-workout-list { margin: 0; padding: 0; display: grid; gap: 9px; list-style: none; }
+.monthly-workout-list li { min-height: 76px; padding: 12px 16px 12px 12px; display: grid; grid-template-columns: 43px 1fr; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 6px 18px rgba(12,60,81,.045); }
+.monthly-workout-list li > span { width: 43px; height: 43px; display: grid; place-items: center; border-radius: 12px; color: var(--blue); background: var(--mist); font-family: var(--display); font-size: 17px; font-weight: 800; }
+.monthly-workout-list strong { color: var(--navy); font-size: 11px; line-height: 1.45; }
+.monthly-workout-note { margin-top: 18px; padding: 17px; display: grid; grid-template-columns: 43px 1fr; gap: 12px; align-items: center; border-radius: 15px; color: #fff; background: var(--navy); }
+.monthly-workout-note > span { width: 43px; height: 43px; display: grid; place-items: center; border-radius: 12px; color: var(--mint); background: rgba(255,255,255,.08); }
+.monthly-workout-note .eyebrow { margin-bottom: 4px; color: var(--mint); font-size: 7px; }
+.monthly-workout-note strong { font-size: 9px; line-height: 1.55; }
+.monthly-workout-updated { margin: 15px 0 0; color: #8ca0a8; font-size: 7px; text-align: center; text-transform: uppercase; }
+.monthly-workout-loading { min-height: 420px; display: flex; align-items: center; justify-content: center; gap: 9px; color: var(--muted); font-size: 10px; }
+.monthly-workout-error { min-height: 500px; padding-block: 90px; display: flex; align-items: center; flex-direction: column; text-align: center; }
+.monthly-workout-error > svg { color: var(--blue); }
+.monthly-workout-error h1 { margin: 20px 0 8px; color: var(--navy); font-family: var(--display); font-size: 38px; text-transform: uppercase; }
+.monthly-workout-error p { margin: 0 0 20px; color: var(--muted); font-size: 10px; }
 
 .workout-page { padding-bottom: calc(98px + env(safe-area-inset-bottom)); background: #f6f9f9; }
 .workout-hero { position: relative; overflow: hidden; color: #fff; background: var(--navy); }
@@ -323,6 +356,22 @@ a { color: inherit; text-decoration: none; }
 .password-field-label { margin-top: 15px; }
 .password-dialog .text-field { height: 50px; }
 .password-dialog .primary-button { margin-top: 18px; }
+.monthly-admin-content { max-width: 850px; }
+.monthly-admin-form { margin-top: 26px; padding: 20px; display: grid; gap: 18px; border: 1px solid var(--line); border-radius: 17px; background: #fff; box-shadow: 0 9px 27px rgba(12,60,81,.055); }
+.monthly-admin-form__intro { margin: -20px -20px 1px; padding: 18px 20px; display: grid; grid-template-columns: 42px 1fr; gap: 11px; align-items: center; border-radius: 17px 17px 0 0; color: #fff; background: var(--navy); }
+.monthly-admin-form__intro > span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 11px; color: var(--mint); background: rgba(255,255,255,.08); }
+.monthly-admin-form__intro strong { font-family: var(--display); font-size: 19px; text-transform: uppercase; }
+.monthly-admin-form__intro p { margin: 3px 0 0; color: rgba(255,255,255,.6); font-size: 8px; line-height: 1.45; }
+.monthly-admin-grid { display: grid; gap: 18px; }
+.monthly-admin-form label { min-width: 0; display: flex; flex-direction: column; }
+.monthly-admin-form label > span { margin-bottom: 7px; color: var(--navy); font-size: 9px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.monthly-admin-form label > small { margin: -2px 0 8px; color: var(--muted); font-size: 7px; line-height: 1.5; }
+.monthly-admin-form input, .monthly-admin-form textarea { width: 100%; padding: 12px 13px; border: 1.5px solid #cbdce0; border-radius: 11px; outline: 0; color: var(--ink); background: #fbfdfd; font-size: 11px; line-height: 1.55; resize: vertical; transition: .2s ease; }
+.monthly-admin-form input { height: 49px; }
+.monthly-admin-form textarea { min-height: 92px; }
+.monthly-admin-form input:focus, .monthly-admin-form textarea:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(56,140,169,.1); background: #fff; }
+.monthly-admin-form__actions { padding-top: 2px; display: flex; align-items: center; justify-content: flex-end; gap: 9px; }
+.monthly-admin-form__actions .primary-button { min-height: 45px; padding-inline: 17px; }
 .admin-stats-page { background: #f4f8f8; }
 .stats-content { max-width: 960px; padding-top: 22px; padding-bottom: 70px; }
 .stats-hero { position: relative; min-height: 210px; padding: 27px 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; overflow: hidden; border-radius: 20px; color: #fff; background: linear-gradient(125deg, var(--navy-deep), #0a6685); box-shadow: 0 14px 35px rgba(6,58,83,.16); }
@@ -454,10 +503,17 @@ a { color: inherit; text-decoration: none; }
   .home-hero__copy { font-size: 15px; }
   .challenge-section { margin-top: -12px; }
   .workout-grid { grid-template-columns: repeat(2, 1fr); }
+  .home-feature-link { padding: 24px; }
   .hyrox-test__summary { padding: 24px; }
   .hyrox-test__content { padding: 28px; }
   .hyrox-test__workout { grid-template-columns: repeat(2, 1fr); }
   .hyrox-test__divisions { grid-template-columns: repeat(4, 1fr); }
+  .monthly-workout-hero { min-height: 440px; padding-top: 78px; }
+  .monthly-workout-list { grid-template-columns: repeat(2, 1fr); }
+  .monthly-workout-note { padding: 20px; }
+  .monthly-admin-form { padding: 26px; }
+  .monthly-admin-form__intro { margin: -26px -26px 2px; padding: 21px 26px; }
+  .monthly-admin-grid { grid-template-columns: repeat(2, 1fr); }
   .workout-card--disabled:last-child { grid-column: span 2; }
   .leader-row { min-height: 80px; padding-inline: 18px; grid-template-columns: 55px 1fr auto; }
   .leader-row__person strong { font-size: 13px; }
@@ -490,8 +546,10 @@ a { color: inherit; text-decoration: none; }
   .workout-card--active:last-child:nth-child(odd) { grid-column: 2 / span 4; }
   .workout-card--disabled { grid-column: span 2; }
   .workout-card--disabled:last-child { grid-column: span 2; }
-  .hyrox-test { max-width: 900px; margin-inline: auto; }
+  .home-feature-link, .hyrox-test { max-width: 900px; margin-inline: auto; }
+  .home-feature-link { margin-bottom: 22px; }
   .team-access { max-width: 620px; margin-inline: auto; }
+  .monthly-workout-body { max-width: 800px; }
   .workout-hero__title-row, .workout-hero__description { max-width: 760px; }
   .workout-summary { max-width: 700px; }
   .leaderboard-section { max-width: 800px; }
@@ -505,6 +563,7 @@ a { color: inherit; text-decoration: none; }
   .home-hero h1 { font-size: 58px; }
   .workout-card { padding-right: 14px; grid-template-columns: 39px 1fr 31px; gap: 10px; }
   .workout-card__meta { font-size: 8px; }
+  .home-feature-link { padding: 17px 14px; grid-template-columns: 42px 1fr 28px; gap: 10px; }
   .hyrox-test__summary { padding: 17px 14px; grid-template-columns: 42px 1fr 28px; gap: 10px; }
   .hyrox-test__summary-icon { width: 42px; height: 42px; }
   .hyrox-test__summary-copy strong { font-size: 21px; }

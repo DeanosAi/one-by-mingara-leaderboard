@@ -12,7 +12,7 @@ async function withServer(run) {
   await new Promise((resolve) => server.once('listening', resolve));
   const address = server.address();
   try {
-    await run(`http://127.0.0.1:${address.port}`);
+    await run(`http://127.0.0.1:${address.port}`, directory);
   } finally {
     await new Promise((resolve) => server.close(resolve));
     fs.rmSync(directory, { recursive: true, force: true });
@@ -100,6 +100,45 @@ test('invalid public submissions are rejected helpfully', () => withServer(async
   });
   assert.equal(invalidWeight.status, 400);
   assert.match(invalidWeight.body.error, /weight/i);
+}));
+
+test('Team can publish a persistent Workout of the Month while public editing stays protected', () => withServer(async (baseUrl, directory) => {
+  const initial = await json(`${baseUrl}/api/monthly-workout`);
+  assert.equal(initial.status, 200);
+  assert.equal(initial.body.workout.title, 'HYROX Engine Builder');
+  assert.ok(initial.body.workout.exercises.length > 0);
+
+  const workout = {
+    monthLabel: 'September 2026',
+    title: 'September Strength Builder',
+    format: '4 rounds for quality',
+    description: 'A controlled strength and conditioning session for every member.',
+    exercises: ['500m Row', '16 Wall Balls', '20 Walking Lunges'],
+    coachNote: 'Keep every round smooth and repeatable.',
+  };
+  const unauthorized = await json(`${baseUrl}/api/admin/monthly-workout`, { method: 'PUT', body: JSON.stringify(workout) });
+  assert.equal(unauthorized.status, 401);
+
+  const login = await json(`${baseUrl}/api/admin/login`, { method: 'POST', body: JSON.stringify({ password: 'test-secret' }) });
+  const headers = { Authorization: `Bearer ${login.body.token}` };
+  const updated = await json(`${baseUrl}/api/admin/monthly-workout`, { method: 'PUT', headers, body: JSON.stringify(workout) });
+  assert.equal(updated.status, 200);
+  assert.equal(updated.body.workout.title, workout.title);
+  assert.deepEqual(updated.body.workout.exercises, workout.exercises);
+
+  const publicView = await json(`${baseUrl}/api/monthly-workout`);
+  assert.equal(publicView.body.workout.monthLabel, 'September 2026');
+  const saved = JSON.parse(fs.readFileSync(path.join(directory, 'monthly-workout.json'), 'utf8'));
+  assert.equal(saved.title, workout.title);
+  assert.deepEqual(saved.exercises, workout.exercises);
+
+  const invalid = await json(`${baseUrl}/api/admin/monthly-workout`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify({ ...workout, exercises: [] }),
+  });
+  assert.equal(invalid.status, 400);
+  assert.match(invalid.body.error, /exercise/i);
 }));
 
 test('admin login protects moderation and deletion removes a result', () => withServer(async (baseUrl) => {

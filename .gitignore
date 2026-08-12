@@ -3,6 +3,7 @@ dist/
 .env
 data/results.json
 data/admin.json
+data/monthly-workout.json
 data/*.tmp
 *.log
 artifacts/
