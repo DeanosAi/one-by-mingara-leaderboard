@@ -14,6 +14,7 @@ async function request(path, options = {}) {
 }
 
 export const api = {
+  getMonthlyWorkout: () => request('/api/monthly-workout'),
   getWorkoutResults: (workoutId) => request(`/api/workouts/${workoutId}/results`),
   submitResult: (workoutId, result) => request(`/api/workouts/${workoutId}/results`, {
     method: 'POST',
@@ -30,6 +31,11 @@ export const api = {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'X-One-Leaderboard-Token': token },
     body: JSON.stringify({ currentPassword, newPassword }),
+  }),
+  updateMonthlyWorkout: (token, workout) => request('/api/admin/monthly-workout', {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}`, 'X-One-Leaderboard-Token': token },
+    body: JSON.stringify(workout),
   }),
   deleteResult: (token, id) => request(`/api/admin/results/${id}`, {
     method: 'DELETE',

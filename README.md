@@ -1,6 +1,6 @@
 # One by Mingara Leaderboard
 
-Mobile-first proof of concept for shared member workout leaderboards. It includes five active challenges (1KM Run, 100 Wall Balls, 1KM Row, 1KM Ski, and 80m Burpee Broad Jumps), an expandable HYROX Physical Fitness Test division guide, instant cross-device updates, result ranking, installable PWA metadata, and Team moderation.
+Mobile-first proof of concept for shared member workout leaderboards. It includes five active challenges (1KM Run, 100 Wall Balls, 1KM Row, 1KM Ski, and 80m Burpee Broad Jumps), a Team-managed Workout of the Month, an expandable HYROX Physical Fitness Test division guide, instant cross-device updates, result ranking, installable PWA metadata, and Team moderation.
 
 ## Run locally
 
@@ -31,12 +31,13 @@ The live team build is designed to run behind Mission Control at `/one-leaderboa
 npm run build:mission-control
 ```
 
-The included multi-stage `Dockerfile` builds that subpath-aware version and stores results and the Team password hash in `/app/data`. Mount that directory as a persistent volume and set `ADMIN_PASSWORD` before the first start.
+The included multi-stage `Dockerfile` builds that subpath-aware version and stores results, the monthly workout and the Team password hash in `/app/data`. Mount that directory as a persistent volume and set `ADMIN_PASSWORD` before the first start.
 
 ## Configuration and storage
 
 - Workout definitions live in `shared/workouts.js`. Add fields, weight options, inactive slots, display settings, or new workouts there.
 - Prototype results persist in `data/results.json` on the host. The API is the only layer that reads or writes the file, so all phones viewing the same deployment share the same data.
+- The current featured workout persists in `data/monthly-workout.json`. An authenticated Team member can update it from `/admin/workout-of-the-month`; changes publish immediately to the home feature and `/workout-of-the-month` member page.
 - The front end consumes `/api/...` only. For WordPress, those routes can be replaced with a small WordPress REST plugin backed by custom database tables without rebuilding the member UI.
 - Set `ADMIN_PASSWORD`; the server issues expiring in-memory Team sessions. Member submissions do not require authentication.
 

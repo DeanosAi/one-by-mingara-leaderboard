@@ -4,8 +4,10 @@ import {
   ArrowLeft,
   ArrowRight,
   BarChart3,
+  CalendarDays,
   Check,
   ChevronRight,
+  ClipboardList,
   Dumbbell,
   Gauge,
   Home as HomeIcon,
@@ -13,8 +15,10 @@ import {
   LockKeyhole,
   LogOut,
   Medal,
+  PencilLine,
   RefreshCw,
   Search,
+  Save,
   ShieldCheck,
   Sparkles,
   Target,
@@ -27,7 +31,7 @@ import {
 } from 'lucide-react';
 import { workouts, workoutById, formatTime } from '../shared/workouts.js';
 import { api } from './api.js';
-import { adminLoginNote, assetPath } from './base-path.js';
+import { adminLoginNote, assetPath, platform } from './base-path.js';
 import { subscribeToResultUpdates } from './live-updates.js';
 import AdminStats from './StatsPage.jsx';
 
@@ -73,6 +77,7 @@ function WorkoutIcon({ icon, size = 24 }) {
 function Home() {
   const navigate = useNavigate();
   const [snapshots, setSnapshots] = useState({});
+  const [monthlyWorkout, setMonthlyWorkout] = useState(null);
 
   const loadSnapshots = useCallback(async () => {
     const active = workouts.filter((workout) => workout.active);
@@ -84,11 +89,25 @@ function Home() {
     setSnapshots(next);
   }, []);
 
+  const loadMonthlyWorkout = useCallback(async () => {
+    if (platform !== 'standalone') return;
+    try {
+      const response = await api.getMonthlyWorkout();
+      setMonthlyWorkout(response.workout);
+    } catch {
+      setMonthlyWorkout(null);
+    }
+  }, []);
+
   useEffect(() => {
     document.title = 'One Leaderboard | One by Mingara';
     loadSnapshots();
-    return subscribeToResultUpdates(loadSnapshots);
-  }, [loadSnapshots]);
+    loadMonthlyWorkout();
+    return subscribeToResultUpdates(() => {
+      loadSnapshots();
+      loadMonthlyWorkout();
+    });
+  }, [loadMonthlyWorkout, loadSnapshots]);
 
   return (
     <div className="app-page home-page">
@@ -118,6 +137,21 @@ function Home() {
             </div>
             <span className="section-heading__count">5 workouts</span>
           </div>
+
+          {platform === 'standalone' && (
+            <Link className="home-feature-link home-feature-link--monthly" to="/workout-of-the-month">
+              <span className="hyrox-test__summary-icon"><CalendarDays size={23} /></span>
+              <span className="hyrox-test__summary-copy">
+                <span className="hyrox-test__eyebrow">Featured training</span>
+                <strong>Workout of the Month</strong>
+                <small>{monthlyWorkout ? `${monthlyWorkout.monthLabel} · ${monthlyWorkout.title}` : 'View this month’s featured session.'}</small>
+              </span>
+              <span className="hyrox-test__toggle">
+                <span>View workout</span>
+                <ChevronRight size={19} />
+              </span>
+            </Link>
+          )}
 
           <div className="workout-grid">
             {workouts.map((workout) => {
@@ -209,6 +243,86 @@ function Home() {
             </Link>
           </div>
         </section>
+      </main>
+      <footer className="app-footer"><OneLogo compact /></footer>
+    </div>
+  );
+}
+
+function MonthlyWorkoutPage() {
+  const [workout, setWorkout] = useState(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    document.title = 'Workout of the Month | One by Mingara';
+    let active = true;
+    const load = () => api.getMonthlyWorkout()
+      .then((response) => {
+        if (active) {
+          setWorkout(response.workout);
+          setError('');
+        }
+      })
+      .catch((requestError) => {
+        if (active) setError(requestError.message);
+      });
+    load();
+    const unsubscribe = subscribeToResultUpdates(load);
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, []);
+
+  return (
+    <div className="app-page monthly-workout-page">
+      <ShellHeader backTo="/" title="Workout of the Month" />
+      <main>
+        {error ? (
+          <section className="page-width monthly-workout-error">
+            <ClipboardList size={34} />
+            <h1>Workout unavailable</h1>
+            <p>{error}</p>
+            <Link className="secondary-button" to="/">Return home</Link>
+          </section>
+        ) : !workout ? (
+          <div className="monthly-workout-loading"><LoaderCircle className="spin" /> Loading this month’s workout…</div>
+        ) : (
+          <>
+            <section className="monthly-workout-hero">
+              <div className="monthly-workout-hero__ring" />
+              <div className="page-width monthly-workout-hero__content">
+                <span className="monthly-workout-hero__icon"><CalendarDays size={28} /></span>
+                <p className="eyebrow">{workout.monthLabel}</p>
+                <h1>{workout.title}</h1>
+                <p>{workout.description}</p>
+                <span className="monthly-workout-format"><Timer size={17} /> {workout.format}</span>
+              </div>
+            </section>
+
+            <section className="page-width monthly-workout-body">
+              <div className="monthly-workout-heading">
+                <div><p className="eyebrow">Your session</p><h2>Complete in order.</h2></div>
+                <span>{workout.exercises.length} movements</span>
+              </div>
+              <ol className="monthly-workout-list">
+                {workout.exercises.map((exercise, index) => (
+                  <li key={`${exercise}-${index}`}>
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                    <strong>{exercise}</strong>
+                  </li>
+                ))}
+              </ol>
+              {workout.coachNote && (
+                <div className="monthly-workout-note">
+                  <span><Sparkles size={20} /></span>
+                  <div><p className="eyebrow">Team note</p><strong>{workout.coachNote}</strong></div>
+                </div>
+              )}
+              <p className="monthly-workout-updated">Updated {new Date(workout.updatedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            </section>
+          </>
+        )}
       </main>
       <footer className="app-footer"><OneLogo compact /></footer>
     </div>
@@ -669,6 +783,7 @@ function Admin() {
         <div className="admin-title">
           <div><p className="eyebrow">Moderation</p><h1>Workout results</h1><p>Choose a workout to review its scores and moderate entries.</p></div>
           <div className="admin-title__actions">
+            {platform === 'standalone' && <Link className="secondary-button" to="/admin/workout-of-the-month"><PencilLine size={16} /> Monthly workout</Link>}
             <Link className="secondary-button" to="/admin/stats"><BarChart3 size={16} /> Stats</Link>
             <button className="secondary-button" onClick={() => setShowPasswordDialog(true)} type="button"><LockKeyhole size={16} /> Reset password</button>
             <button className="secondary-button" onClick={() => load()} type="button"><RefreshCw size={16} /> Refresh</button>
@@ -743,12 +858,113 @@ function Admin() {
   );
 }
 
+function AdminMonthlyWorkout() {
+  const token = sessionStorage.getItem('one-admin-token');
+  const [draft, setDraft] = useState(null);
+  const [exerciseLines, setExerciseLines] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+
+  useEffect(() => {
+    document.title = 'Edit Workout of the Month | One Leaderboard';
+    if (!token) return;
+    let active = true;
+    api.getMonthlyWorkout()
+      .then((response) => {
+        if (!active) return;
+        setDraft(response.workout);
+        setExerciseLines(response.workout.exercises.join('\n'));
+      })
+      .catch((requestError) => {
+        if (active) setError(requestError.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
+  }, [token]);
+
+  if (!token) return <Navigate to="/admin" replace />;
+
+  function updateField(field, value) {
+    setDraft((current) => ({ ...current, [field]: value }));
+    setNotice('');
+  }
+
+  async function saveWorkout(event) {
+    event.preventDefault();
+    setSaving(true);
+    setError('');
+    setNotice('');
+    try {
+      const exercises = exerciseLines.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      const response = await api.updateMonthlyWorkout(token, { ...draft, exercises });
+      setDraft(response.workout);
+      setExerciseLines(response.workout.exercises.join('\n'));
+      setNotice('Workout of the Month published successfully.');
+    } catch (requestError) {
+      setError(requestError.message);
+      if (/session|sign in/i.test(requestError.message)) sessionStorage.removeItem('one-admin-token');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="app-page admin-page monthly-admin-page">
+      <header className="admin-header">
+        <div className="page-width admin-header__inner">
+          <Link className="icon-button" to="/admin" aria-label="Back to workout results"><ArrowLeft size={21} /></Link>
+          <div><p className="eyebrow">One Leaderboard</p><strong>Team admin</strong></div>
+          <Link className="logout-button" to="/workout-of-the-month"><ClipboardList size={16} /> Preview</Link>
+        </div>
+      </header>
+      <main className="admin-content page-width monthly-admin-content">
+        <div className="admin-title">
+          <div><p className="eyebrow">Featured training</p><h1>Workout of the Month</h1><p>Update the member workout whenever the monthly program changes.</p></div>
+        </div>
+
+        {loading ? <div className="admin-loading"><LoaderCircle className="spin" /> Loading monthly workout…</div> : null}
+        {error && <div className="form-error admin-error" role="alert">{error}</div>}
+        {notice && <div className="success-notice" role="status"><Check size={17} /> <span>{notice}</span><button type="button" onClick={() => setNotice('')} aria-label="Dismiss message"><X size={15} /></button></div>}
+
+        {draft && (
+          <form className="monthly-admin-form" onSubmit={saveWorkout}>
+            <div className="monthly-admin-form__intro">
+              <span><PencilLine size={21} /></span>
+              <div><strong>Member-facing workout</strong><p>Saving publishes these changes immediately to the home feature and workout page.</p></div>
+            </div>
+
+            <div className="monthly-admin-grid">
+              <label><span>Month label</span><input value={draft.monthLabel} onChange={(event) => updateField('monthLabel', event.target.value)} minLength={2} maxLength={40} required placeholder="August 2026" /></label>
+              <label><span>Workout format</span><input value={draft.format} onChange={(event) => updateField('format', event.target.value)} minLength={2} maxLength={80} required placeholder="3 rounds for time" /></label>
+            </div>
+            <label><span>Workout title</span><input value={draft.title} onChange={(event) => updateField('title', event.target.value)} minLength={3} maxLength={80} required placeholder="HYROX Engine Builder" /></label>
+            <label><span>Description</span><textarea value={draft.description} onChange={(event) => updateField('description', event.target.value)} minLength={10} maxLength={500} required rows={4} placeholder="Describe the purpose of this month’s session." /></label>
+            <label><span>Exercises</span><small>Enter one movement or instruction per line. Add between 1 and 12 lines.</small><textarea value={exerciseLines} onChange={(event) => { setExerciseLines(event.target.value); setNotice(''); }} required rows={8} placeholder={'500m Row\n400m Run\n20 Wall Balls'} /></label>
+            <label><span>Team note</span><textarea value={draft.coachNote} onChange={(event) => updateField('coachNote', event.target.value)} maxLength={300} rows={3} placeholder="Optional pacing, scaling or technique guidance." /></label>
+
+            <div className="monthly-admin-form__actions">
+              <Link className="secondary-button" to="/admin">Cancel</Link>
+              <button className="primary-button" type="submit" disabled={saving}>{saving ? <><LoaderCircle className="spin" size={19} /> Publishing…</> : <><Save size={18} /> Publish workout</>}</button>
+            </div>
+          </form>
+        )}
+      </main>
+    </div>
+  );
+}
+
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      {platform === 'standalone' && <Route path="/workout-of-the-month" element={<MonthlyWorkoutPage />} />}
       <Route path="/workout/:workoutId" element={<WorkoutPage />} />
       <Route path="/admin" element={<Admin />} />
+      {platform === 'standalone' && <Route path="/admin/workout-of-the-month" element={<AdminMonthlyWorkout />} />}
       <Route path="/admin/stats" element={<AdminStats />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -5,6 +5,7 @@ export function subscribeToResultUpdates(callback) {
     const events = new EventSource(apiPath('/api/events'));
     events.addEventListener('result-created', callback);
     events.addEventListener('result-deleted', callback);
+    events.addEventListener('monthly-workout-updated', callback);
     return () => events.close();
   }
 

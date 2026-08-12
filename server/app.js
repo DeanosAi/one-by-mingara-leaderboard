@@ -5,6 +5,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { workouts, workoutById } from '../shared/workouts.js';
 import { createStore } from './store.js';
 import { createAdminCredentialStore } from './admin-auth.js';
+import { createMonthlyWorkoutStore } from './monthly-workout.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
@@ -17,6 +18,7 @@ export function createApp(options = {}) {
   const app = express();
   const dataFile = options.dataFile || path.join(projectRoot, 'data', 'results.json');
   const store = createStore(dataFile);
+  const monthlyWorkoutStore = createMonthlyWorkoutStore(options.monthlyWorkoutFile || path.join(path.dirname(dataFile), 'monthly-workout.json'));
   const adminPassword = options.adminPassword || process.env.ADMIN_PASSWORD || 'oneadmin';
   const adminCredentials = createAdminCredentialStore(options.adminFile || path.join(path.dirname(dataFile), 'admin.json'), adminPassword);
   const adminTokens = new Map();
@@ -25,8 +27,8 @@ export function createApp(options = {}) {
   app.disable('x-powered-by');
   app.use(express.json({ limit: '16kb' }));
 
-  function broadcast(type, result) {
-    const payload = `event: ${type}\ndata: ${JSON.stringify({ workoutId: result.workoutId, resultId: result.id })}\n\n`;
+  function broadcast(type, data) {
+    const payload = `event: ${type}\ndata: ${JSON.stringify(data)}\n\n`;
     for (const response of eventClients) response.write(payload);
   }
 
@@ -46,6 +48,10 @@ export function createApp(options = {}) {
 
   app.get('/api/workouts', (_request, response) => {
     response.json({ workouts });
+  });
+
+  app.get('/api/monthly-workout', (_request, response) => {
+    response.json({ workout: monthlyWorkoutStore.get() });
   });
 
   app.get('/api/workouts/:workoutId/results', (request, response) => {
@@ -88,7 +94,7 @@ export function createApp(options = {}) {
     store.add(result);
     const sorted = store.list(workout.id);
     const rank = sorted.findIndex((entry) => entry.id === result.id) + 1;
-    broadcast('result-created', result);
+    broadcast('result-created', { workoutId: result.workoutId, resultId: result.id });
     response.status(201).json({ result, rank, total: sorted.length });
   });
 
@@ -134,6 +140,16 @@ export function createApp(options = {}) {
     response.json({ changed: true, token, expiresIn: 28800 });
   });
 
+  app.put('/api/admin/monthly-workout', requireAdmin, (request, response) => {
+    try {
+      const workout = monthlyWorkoutStore.update(request.body);
+      broadcast('monthly-workout-updated', { updatedAt: workout.updatedAt });
+      response.json({ workout });
+    } catch (error) {
+      response.status(400).json({ error: error.message });
+    }
+  });
+
   app.get('/api/admin/results', requireAdmin, (_request, response) => {
     const results = store.list()
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
@@ -144,7 +160,7 @@ export function createApp(options = {}) {
   app.delete('/api/admin/results/:id', requireAdmin, (request, response) => {
     const removed = store.remove(request.params.id);
     if (!removed) return response.status(404).json({ error: 'Result not found.' });
-    broadcast('result-deleted', removed);
+    broadcast('result-deleted', { workoutId: removed.workoutId, resultId: removed.id });
     response.json({ deleted: true, result: removed });
   });
 
