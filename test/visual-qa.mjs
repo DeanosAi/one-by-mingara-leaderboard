@@ -34,6 +34,11 @@ try {
   await monthlyWorkoutLink.click();
   await mobile.getByRole('heading', { name: 'HYROX Engine Builder' }).waitFor();
   assert.equal(await mobile.locator('.monthly-workout-list li').count(), 4);
+  const monthlySectionSpacing = await mobile.evaluate(() => ({
+    heroBottom: document.querySelector('.monthly-workout-hero').getBoundingClientRect().bottom,
+    sessionTop: document.querySelector('.monthly-workout-heading').getBoundingClientRect().top,
+  }));
+  assert.ok(monthlySectionSpacing.sessionTop >= monthlySectionSpacing.heroBottom + 15);
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
   await mobile.getByRole('link', { name: 'Go back' }).click();
   await mobile.getByText('Choose your challenge').waitFor();
