@@ -82,7 +82,7 @@ function MonthlyWorkoutClickCard({ stats, selectedMonth }) {
       <span className="monthly-click-card__icon"><MousePointerClick size={24} /></span>
       <div className="monthly-click-card__copy">
         <p className="eyebrow">Workout of the Month interest</p>
-        <h2>Feature button clicks</h2>
+        <h2>WORKOUT OF THE MONTH BUTTON CLICKS</h2>
         <p>{stats.topWorkoutTitle ? `Most clicked workout: ${stats.topWorkoutTitle}` : 'No Workout of the Month clicks recorded in this period.'}</p>
       </div>
       <div className="monthly-click-card__metric">
