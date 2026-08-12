@@ -6,6 +6,7 @@ import { workouts, workoutById } from '../shared/workouts.js';
 import { createStore } from './store.js';
 import { createAdminCredentialStore } from './admin-auth.js';
 import { createMonthlyWorkoutStore } from './monthly-workout.js';
+import { createMonthlyWorkoutClickStore } from './monthly-workout-clicks.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
@@ -19,6 +20,7 @@ export function createApp(options = {}) {
   const dataFile = options.dataFile || path.join(projectRoot, 'data', 'results.json');
   const store = createStore(dataFile);
   const monthlyWorkoutStore = createMonthlyWorkoutStore(options.monthlyWorkoutFile || path.join(path.dirname(dataFile), 'monthly-workout.json'));
+  const monthlyWorkoutClickStore = createMonthlyWorkoutClickStore(options.monthlyWorkoutClicksFile || path.join(path.dirname(dataFile), 'monthly-workout-clicks.json'));
   const adminPassword = options.adminPassword || process.env.ADMIN_PASSWORD || 'oneadmin';
   const adminCredentials = createAdminCredentialStore(options.adminFile || path.join(path.dirname(dataFile), 'admin.json'), adminPassword);
   const adminTokens = new Map();
@@ -52,6 +54,12 @@ export function createApp(options = {}) {
 
   app.get('/api/monthly-workout', (_request, response) => {
     response.json({ workout: monthlyWorkoutStore.get() });
+  });
+
+  app.post('/api/monthly-workout/click', (_request, response) => {
+    const click = monthlyWorkoutClickStore.record(monthlyWorkoutStore.get());
+    broadcast('monthly-workout-clicked', { clickedAt: click.clickedAt });
+    response.status(201).json({ tracked: true });
   });
 
   app.get('/api/workouts/:workoutId/results', (request, response) => {
@@ -148,6 +156,11 @@ export function createApp(options = {}) {
     } catch (error) {
       response.status(400).json({ error: error.message });
     }
+  });
+
+  app.get('/api/admin/monthly-workout-clicks', requireAdmin, (_request, response) => {
+    const clicks = monthlyWorkoutClickStore.list();
+    response.json({ clicks, total: clicks.length });
   });
 
   app.get('/api/admin/results', requireAdmin, (_request, response) => {

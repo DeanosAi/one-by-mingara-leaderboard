@@ -38,6 +38,7 @@ The included multi-stage `Dockerfile` builds that subpath-aware version and stor
 - Workout definitions live in `shared/workouts.js`. Add fields, weight options, inactive slots, display settings, or new workouts there.
 - Prototype results persist in `data/results.json` on the host. The API is the only layer that reads or writes the file, so all phones viewing the same deployment share the same data.
 - The current featured workout persists in `data/monthly-workout.json`. An authenticated Team member can update it from `/admin/workout-of-the-month`; changes publish immediately to the home feature and `/workout-of-the-month` member page.
+- Anonymous clicks on the home-page Workout of the Month feature persist in `data/monthly-workout-clicks.json`. The protected Usage & Adoption page reports clicks for the selected month, the previous-month comparison and the lifetime tracked total.
 - The front end consumes `/api/...` only. For WordPress, those routes can be replaced with a small WordPress REST plugin backed by custom database tables without rebuilding the member UI.
 - Set `ADMIN_PASSWORD`; the server issues expiring in-memory Team sessions. Member submissions do not require authentication.
 

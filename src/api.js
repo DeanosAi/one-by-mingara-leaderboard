@@ -15,6 +15,11 @@ async function request(path, options = {}) {
 
 export const api = {
   getMonthlyWorkout: () => request('/api/monthly-workout'),
+  trackMonthlyWorkoutClick: () => request('/api/monthly-workout/click', {
+    method: 'POST',
+    keepalive: true,
+    body: '{}',
+  }),
   getWorkoutResults: (workoutId) => request(`/api/workouts/${workoutId}/results`),
   submitResult: (workoutId, result) => request(`/api/workouts/${workoutId}/results`, {
     method: 'POST',
@@ -36,6 +41,9 @@ export const api = {
     method: 'PUT',
     headers: { Authorization: `Bearer ${token}`, 'X-One-Leaderboard-Token': token },
     body: JSON.stringify(workout),
+  }),
+  getMonthlyWorkoutClicks: (token) => request('/api/admin/monthly-workout-clicks', {
+    headers: { Authorization: `Bearer ${token}`, 'X-One-Leaderboard-Token': token },
   }),
   deleteResult: (token, id) => request(`/api/admin/results/${id}`, {
     method: 'DELETE',

@@ -171,6 +171,9 @@ try {
   await mobile.getByRole('heading', { name: 'Usage & adoption' }).waitFor();
   await mobile.locator('.period-card').first().waitFor();
   assert.equal(await mobile.locator('.period-card').count(), 3);
+  await mobile.locator('.monthly-click-card').waitFor();
+  assert.equal(await mobile.locator('.monthly-click-card__metric > strong').textContent(), '1');
+  await mobile.getByText('Most clicked workout: HYROX Engine Builder', { exact: true }).waitFor();
   assert.equal(await mobile.locator('.donut-card').count(), 2);
   assert.equal(await mobile.locator('.stats-table-card').count(), 2);
   assert.equal(await mobile.locator('.line-chart').count(), 1);
@@ -180,6 +183,7 @@ try {
   const previousMonthValue = await monthSelect.locator('option').nth(1).getAttribute('value');
   await monthSelect.selectOption(previousMonthValue);
   await mobile.getByText('No workout entries in the selected month.').waitFor();
+  assert.equal(await mobile.locator('.monthly-click-card__metric > strong').textContent(), '0');
   assert.equal(await mobile.locator('.period-card').nth(2).locator('strong').textContent(), '0');
   const currentMonthValue = await monthSelect.locator('option').first().getAttribute('value');
   await monthSelect.selectOption(currentMonthValue);

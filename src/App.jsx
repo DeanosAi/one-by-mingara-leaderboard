@@ -139,7 +139,7 @@ function Home() {
           </div>
 
           {platform === 'standalone' && (
-            <Link className="home-feature-link home-feature-link--monthly" to="/workout-of-the-month">
+            <Link className="home-feature-link home-feature-link--monthly" to="/workout-of-the-month" onClick={() => api.trackMonthlyWorkoutClick().catch(() => {})}>
               <span className="hyrox-test__summary-icon"><CalendarDays size={23} /></span>
               <span className="hyrox-test__summary-copy">
                 <span className="hyrox-test__eyebrow">Featured training</span>
