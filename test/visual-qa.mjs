@@ -28,7 +28,8 @@ try {
   for (const workoutName of ['1KM Run', '100 War Balls', '1KM Row', '1KM Ski', '80m Burpee Broad Jumps']) {
     assert.equal(await mobile.getByRole('button', { name: `Open ${workoutName} leaderboard` }).count(), 1);
   }
-  assert.equal(await mobile.getByRole('link', { name: /Staff admin login/i }).getAttribute('href'), '/admin');
+  assert.equal(await mobile.getByRole('link', { name: /Team admin login/i }).getAttribute('href'), '/admin');
+  assert.equal(await mobile.getByText('One by Mingara Team').count(), 1);
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
   const manifest = await mobile.evaluate(() => fetch('/manifest.webmanifest').then((response) => response.json()));
   assert.equal(manifest.display, 'standalone');
@@ -83,6 +84,7 @@ try {
   }
 
   await mobile.goto(`${baseUrl}/admin`, { waitUntil: 'domcontentloaded' });
+  await mobile.getByText('Team access').waitFor();
   await mobile.getByLabel('Admin password').fill('oneadmin');
   await mobile.screenshot({ path: path.join(outputDir, 'admin-login-mobile.png'), fullPage: true });
   await mobile.getByRole('button', { name: /Sign in securely/i }).click();

@@ -51,7 +51,7 @@ function ShellHeader({ backTo, title, dark = false, admin = false }) {
         )}
         {title && <span className="shell-header__title">{title}</span>}
         {admin ? (
-          <Link className="icon-button" to="/admin" aria-label="Staff admin">
+          <Link className="icon-button" to="/admin" aria-label="Team admin">
             <ShieldCheck size={20} />
           </Link>
         ) : <span className="shell-header__spacer" />}
@@ -156,11 +156,11 @@ function Home() {
             })}
           </div>
 
-          <div className="staff-access">
-            <span>One by Mingara staff</span>
-            <Link className="staff-access__button" to="/admin">
+          <div className="team-access">
+            <span>One by Mingara Team</span>
+            <Link className="team-access__button" to="/admin">
               <ShieldCheck size={17} />
-              Staff admin login
+              Team admin login
               <ArrowRight size={16} />
             </Link>
           </div>
@@ -369,9 +369,9 @@ function PasswordDialog({ token, onClose, onChanged }) {
       <section className="password-dialog" role="dialog" aria-modal="true" aria-labelledby="password-dialog-title">
         <button className="icon-button password-dialog__close" type="button" onClick={onClose} aria-label="Close password settings"><X size={20} /></button>
         <div className="password-dialog__icon"><LockKeyhole size={24} /></div>
-        <p className="eyebrow">Staff security</p>
+        <p className="eyebrow">Team security</p>
         <h2 id="password-dialog-title">Change admin password</h2>
-        <p>Update the shared password used by One by Mingara staff.</p>
+        <p>Update the shared password used by the One by Mingara Team.</p>
         <form onSubmit={submit}>
           <label className="field-label" htmlFor="current-admin-password">Current password</label>
           <div className="text-field"><LockKeyhole size={18} /><input id="current-admin-password" type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} autoComplete="current-password" /></div>
@@ -531,7 +531,7 @@ function Admin() {
   }, [token]);
 
   useEffect(() => {
-    document.title = 'Staff Admin | One Leaderboard';
+    document.title = 'Team Admin | One Leaderboard';
     if (token) load(token);
   }, [token, load]);
 
@@ -572,7 +572,7 @@ function Admin() {
   if (!token) {
     return (
       <div className="app-page admin-login-page">
-        <ShellHeader backTo="/" title="Staff access" />
+        <ShellHeader backTo="/" title="Team access" />
         <main className="admin-login">
           <div className="admin-login__brand"><OneLogo /></div>
           <div className="admin-login__icon"><ShieldCheck size={32} /></div>
@@ -585,7 +585,7 @@ function Admin() {
             {error && <div className="form-error" role="alert">{error}</div>}
             <button className="primary-button primary-button--full" type="submit" disabled={!password || loading}>{loading ? <><LoaderCircle className="spin" size={20} /> Signing in…</> : <>Sign in securely <ArrowRight size={19} /></>}</button>
           </form>
-          <p className="demo-note">Use the staff testing password supplied with this preview.</p>
+          <p className="demo-note">Use the Team testing password supplied with this preview.</p>
         </main>
       </div>
     );
@@ -624,7 +624,7 @@ function Admin() {
       <header className="admin-header">
         <div className="page-width admin-header__inner">
           <button className="icon-button" type="button" onClick={() => navigate('/')} aria-label="Back to app"><ArrowLeft size={21} /></button>
-          <div><p className="eyebrow">One Leaderboard</p><strong>Staff admin</strong></div>
+          <div><p className="eyebrow">One Leaderboard</p><strong>Team admin</strong></div>
           <button className="logout-button" type="button" onClick={logout}><LogOut size={16} /> Sign out</button>
         </div>
       </header>
