@@ -34,6 +34,10 @@ try {
   await monthlyWorkoutLink.click();
   await mobile.getByRole('heading', { name: 'HYROX Engine Builder' }).waitFor();
   assert.equal(await mobile.locator('.monthly-workout-list li').count(), 4);
+  assert.equal(await mobile.evaluate(() => (
+    document.querySelector('.monthly-workout-note').compareDocumentPosition(document.querySelector('.monthly-workout-list'))
+      & Node.DOCUMENT_POSITION_FOLLOWING
+  ) !== 0), true);
   await mobile.getByRole('button', { name: 'RECORD YOUR TIME' }).click();
   await mobile.getByRole('dialog').waitFor();
   assert.equal(await mobile.getByLabel('Minutes').locator('option').count(), 180);
